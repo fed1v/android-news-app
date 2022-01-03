@@ -4,16 +4,17 @@ import android.app.ProgressDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.RecoverySystem
 import android.view.View
 import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app_demo.Models.NewsApiResponse
 import com.example.news_app_demo.Models.NewsHeadlines
 
 class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
-//    private var manager: RequestManager = RequestManager(this)
+    //    private var manager: RequestManager = RequestManager(this)
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CustomAdapter
     private lateinit var dialog: ProgressDialog
@@ -26,11 +27,29 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
     private lateinit var b6: Button
     private lateinit var b7: Button
 
+    private lateinit var searchView: SearchView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        searchView = findViewById(R.id.search_view)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                dialog.setTitle("Fetching news articles of $query")
+                dialog.show()
+
+                val manager: RequestManager = RequestManager(this@MainActivity)
+                manager.getNewsHeadlines(listener, "general", query)
+
+                return true
+            }
+
+            override fun onQueryTextChange(q: String?): Boolean {
+                return false
+            }
+        })
 
         dialog = ProgressDialog(this)
         dialog.setTitle("Fetching news articles...")
@@ -74,20 +93,31 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
     }
 
     override fun onNewsClicked(headlines: NewsHeadlines) {
-        startActivity(Intent(this, DetailsActivity::class.java)
-            .putExtra("data", headlines))
+        startActivity(
+            Intent(this, DetailsActivity::class.java)
+                .putExtra("data", headlines)
+        )
 
     }
 
-    private val listener: OnFetchDataListener<NewsApiResponse> = object: OnFetchDataListener<NewsApiResponse>{
-        override fun onFetchData(newsHeadlinesList: List<NewsHeadlines>, message: String) {
-            showNews(newsHeadlinesList)
-            dialog.dismiss()
+    private val listener: OnFetchDataListener<NewsApiResponse> =
+        object : OnFetchDataListener<NewsApiResponse> {
+            override fun onFetchData(newsHeadlinesList: List<NewsHeadlines>, message: String) {
+                if (newsHeadlinesList.isEmpty()) {
+                    Toast.makeText(this@MainActivity, "Nothing found", Toast.LENGTH_SHORT).show()
+                } else {
+                    showNews(newsHeadlinesList)
+                }
+
+                dialog.dismiss()
+
+            }
+
+            override fun onError(message: String) {
+                Toast.makeText(this@MainActivity, "Error", Toast.LENGTH_SHORT).show()
+            }
+
         }
-
-        override fun onError(message: String) {}
-
-    }
 
     private fun showNews(newsHeadlinesList: List<NewsHeadlines>) {
         recyclerView = findViewById(R.id.recycler_main)
