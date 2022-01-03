@@ -27,9 +27,9 @@ class RequestManager(
     ) {
         val callNewsApi: CallNewsApi = retrofit.create(CallNewsApi::class.java)
         val call: Call<NewsApiResponse> = callNewsApi.callHeadlines(
-            "ru",
+            "us",
             category,
-            query, // TODO
+            query,
             context.getString(R.string.api_key)
         )
 

@@ -9,9 +9,9 @@ import com.squareup.picasso.Picasso
 
 class CustomAdapter(
     var context: Context,
-    var headlines: List<NewsHeadlines>
+    var headlines: List<NewsHeadlines>,
+    var listener: SelectListener
 ) : RecyclerView.Adapter<CustomViewHolder>() {
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         return CustomViewHolder(
@@ -20,15 +20,20 @@ class CustomAdapter(
     }
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        val headLine = headlines.get(position)
+        val headline = headlines.get(position)
 
-        holder.text_title.setText(headLine.title)
-        holder.text_source.setText(headLine.source?.name)
-        if(headLine.urlToImage != null){
-            Picasso.get().load(headLine.urlToImage).into(holder.img_headline)
+        holder.text_title.setText(headline.title)
+        holder.text_source.setText(headline.source?.name)
+        if(headline.urlToImage != null){
+            Picasso.get().load(headline.urlToImage).into(holder.img_headline)
         } else{
             // TODO
         }
+
+        holder.cardView.setOnClickListener{
+            listener.onNewsClicked(headline)
+        }
+
     }
 
     override fun getItemCount(): Int = headlines.size

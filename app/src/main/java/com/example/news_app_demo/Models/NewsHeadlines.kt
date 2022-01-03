@@ -1,6 +1,8 @@
 package com.example.news_app_demo.Models
 
-class NewsHeadlines {
+import java.io.Serializable
+
+class NewsHeadlines: Serializable {
     var source: Source? = null
     var author: String = ""
     var title: String = ""
