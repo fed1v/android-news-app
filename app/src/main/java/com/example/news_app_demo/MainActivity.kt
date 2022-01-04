@@ -1,17 +1,22 @@
 package com.example.news_app_demo
 
 import android.app.ProgressDialog
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app_demo.Models.NewsApiResponse
 import com.example.news_app_demo.Models.NewsHeadlines
+import com.example.news_app_demo.Models.Source
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
     //    private var manager: RequestManager = RequestManager(this)
@@ -19,8 +24,16 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
     private lateinit var adapter: CustomAdapter
     private lateinit var dialog: ProgressDialog
 
+    private val options: Array<String> = arrayOf("Country", "Source", "Everything/Headlines")
+    private val countries: Array<String> = arrayOf("USA", "Russia", "Ukraine", "France")
+    private val countries_api: Array<String> = arrayOf("us", "ru", "ua", "fr")
+
+    private var country_num: Int = 0
+
     private var current_category: String? = null
     private var current_sources: String? = "CNN, techcrunch"
+    private var current_country: String? = countries[country_num]
+    private var current_country_api: String? = countries_api[country_num]
 
     private lateinit var btn_all: Button
     private lateinit var btn_business: Button
@@ -30,6 +43,8 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
     private lateinit var btn_science: Button
     private lateinit var btn_sports: Button
     private lateinit var btn_technology: Button
+
+    private lateinit var btn_options: ImageButton
 
     private lateinit var searchView: SearchView
 
@@ -48,9 +63,9 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
 
                 val manager: RequestManager = RequestManager(this@MainActivity)
 
-                if(current_category == null){
+                if (current_category == null) {
                     manager.getNewsEverything(listener, query, current_sources)
-                } else{
+                } else {
                     manager.getNewsHeadlines(listener, current_category, query)
                 }
 
@@ -90,15 +105,59 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         btn_technology = findViewById(R.id.btn_technology)
         btn_technology.setOnClickListener(this)
 
+        btn_options = findViewById(R.id.btn_options)
+        btn_options.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Options")
+                .setItems(options) { dialog, which ->
+                    when (which) {
+                        0 -> {
+                            println("Country: $current_country")
+                            openCountrySettings()
+                        }
+                        1 -> println("Source")
+                        2 -> println("Everything/Headlines")
+                    }
+                }
+                .setPositiveButton("Ok", null)
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
 
         val manager: RequestManager = RequestManager(this)
         manager.getNewsHeadlines(listener, "general", null)
     }
 
+    private fun openCountrySettings() {
+        var country_n = country_num
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Country")
+            .setSingleChoiceItems(countries, country_num) { dialog, which ->
+                println("index: $which")
+                country_n = which
+            }
+            .setPositiveButton("Ok"){ dialog, which ->
+                country_num = country_n
+                changeCurrentCountry()
+            }
+            .setNegativeButton("Cancel"){ dialog, which ->
+                current_country = countries[country_num]
+            }
+            .show()
+
+
+    }
+
+    fun changeCurrentCountry(){
+        current_country = countries[country_num]
+        current_country_api = countries_api[country_num]
+    }
+
     override fun onClick(v: View?) {
         val button: Button = v as Button
         var category: String? = null
-        if(button.text.toString() != "all"){
+        if (button.text.toString() != "all") {
             category = button.text.toString()
         }
         current_category = category
@@ -107,9 +166,9 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         dialog.show()
 
         val manager: RequestManager = RequestManager(this)
-        if(current_category == null){
+        if (current_category == null) {
             manager.getNewsEverything(listener, null, "CNN,techcrunch")
-        } else{
+        } else {
             manager.getNewsHeadlines(listener, category, null)
         }
     }
