@@ -24,14 +24,16 @@ class RequestManager(
         listener: OnFetchDataListener<NewsApiResponse>,
         category: String?,
         query: String?,
-        country: String = "us"
+        sources: String?,
+        country: String?
     ) {
         val callNewsApi: CallNewsApi = retrofit.create(CallNewsApi::class.java)
         val call: Call<NewsApiResponse> = callNewsApi.callHeadlines(
-            country,
-            category,
-            query,
-            context.getString(R.string.api_key)
+            country = country,
+            category = category,
+            query = query,
+            sources = sources,
+            api_key = context.getString(R.string.api_key2)
         )
 
         try {
@@ -68,7 +70,7 @@ class RequestManager(
             query = query,
             sources = sources,
             language = "en",
-            api_key = context.getString(R.string.api_key)
+            api_key = context.getString(R.string.api_key2)
         )
 
         try {
@@ -99,9 +101,10 @@ class RequestManager(
     interface CallNewsApi {
         @GET("top-headlines")
         fun callHeadlines(
-            @Query("country") country: String,
+            @Query("country") country: String?,
             @Query("category") category: String?,
             @Query("q") query: String?,
+            @Query("sources") sources: String?,
             @Query("apiKey") api_key: String
         ): Call<NewsApiResponse>
 

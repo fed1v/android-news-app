@@ -5,6 +5,8 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.TextUtils
+import android.text.TextUtils.join
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -34,6 +36,12 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
     private var current_sources: String? = "CNN, techcrunch"
     private var current_country: String? = countries[country_num]
     private var current_country_api: String? = countries_api[country_num]
+
+
+    private var sources: Array<String> = arrayOf("CNN", "TechCrunch", "ABC News")
+    private var sources_api: Array<String> = arrayOf("cnn", "techcrunch", "abc-news")
+    private var current_checked_sources: BooleanArray = booleanArrayOf(false, true, true)
+    private var string_sources: String? = null
 
     private lateinit var btn_all: Button
     private lateinit var btn_business: Button
@@ -66,7 +74,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 if (current_category == null) {
                     manager.getNewsEverything(listener, query, current_sources)
                 } else {
-                    manager.getNewsHeadlines(listener, current_category, query)
+                    manager.getNewsHeadlines(listener, current_category, query, string_sources, current_country_api)
                 }
 
                 return true
@@ -81,7 +89,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         dialog.setTitle("Fetching news articles...")
         dialog.show()
 
-        btn_all = findViewById(R.id.btn_all)  // TODO now all is general!
+        btn_all = findViewById(R.id.btn_all)
         btn_all.setOnClickListener(this)
 
         btn_business = findViewById(R.id.btn_business)
@@ -115,8 +123,13 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                             println("Country: $current_country")
                             openCountrySettings()
                         }
-                        1 -> println("Source")
-                        2 -> println("Everything/Headlines")
+                        1 -> {
+                            println("Source")
+                            openSourceSettings()
+                        }
+                        2 -> {
+                            println("Everything/Headlines")
+                        }
                     }
                 }
                 .setPositiveButton("Ok", null)
@@ -125,8 +138,10 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         }
 
 
+
+
         val manager: RequestManager = RequestManager(this)
-        manager.getNewsHeadlines(listener, "general", null)
+        manager.getNewsHeadlines(listener, "general", null, string_sources, current_country_api)
     }
 
     private fun openCountrySettings() {
@@ -145,13 +160,44 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 current_country = countries[country_num]
             }
             .show()
+    }
 
+    fun openSourceSettings(){
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Source")
+            .setMultiChoiceItems(sources, current_checked_sources){ dialog, which, isChecked ->
+                current_checked_sources[which] = isChecked
+            }
+            .setPositiveButton("Ok"){ dialog, which ->
+                changeSources()
+                println("Ok $which")
+            }
+            .setNeutralButton("Reset"){ dialog, which ->
+                println("Reset $which")
+
+            }
+            .setNegativeButton("Cancel"){ dialog, which ->
+                println("Cancel $which")
+
+            }
+            .show()
 
     }
 
     fun changeCurrentCountry(){
         current_country = countries[country_num]
         current_country_api = countries_api[country_num]
+    }
+
+    fun changeSources(){
+        var result_sources_list = arrayListOf<String>()
+        for(i in 0..2){
+            if(current_checked_sources[i]){
+                result_sources_list.add(sources_api[i])
+            }
+        }
+        string_sources = join(",", result_sources_list)
+        println("String sources: $string_sources")
     }
 
     override fun onClick(v: View?) {
@@ -169,7 +215,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         if (current_category == null) {
             manager.getNewsEverything(listener, null, "CNN,techcrunch")
         } else {
-            manager.getNewsHeadlines(listener, category, null)
+            manager.getNewsHeadlines(listener, category, null, string_sources, current_country_api)
         }
     }
 

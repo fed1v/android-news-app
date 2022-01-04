@@ -20,14 +20,14 @@ class CustomAdapter(
     }
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        val headline = headlines.get(position)
+        val headline = headlines[position]
 
         holder.text_title.setText(headline.title)
         holder.text_source.setText(headline.source?.name)
-        if(headline.urlToImage != null){
+        if(headline.urlToImage != null/* && headline.urlToImage != ""*/){
             Picasso.get().load(headline.urlToImage).into(holder.img_headline)
         } else{
-            holder.img_headline.setImageResource(R.drawable.not_available)
+            holder.img_headline.setImageResource(R.drawable.not_available)  // TODO it doesnt work
         }
 
         holder.cardView.setOnClickListener{
