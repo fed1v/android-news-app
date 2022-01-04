@@ -23,23 +23,24 @@ class RequestManager(
     fun getNewsHeadlines(
         listener: OnFetchDataListener<NewsApiResponse>,
         category: String?,
-        query: String?
+        query: String?,
+        country: String = "us"
     ) {
         val callNewsApi: CallNewsApi = retrofit.create(CallNewsApi::class.java)
         val call: Call<NewsApiResponse> = callNewsApi.callHeadlines(
-            "us",
+            country,
             category,
             query,
             context.getString(R.string.api_key)
         )
 
-        try{
-            call.enqueue(object: Callback<NewsApiResponse>{
+        try {
+            call.enqueue(object : Callback<NewsApiResponse> {
                 override fun onResponse(
                     call: Call<NewsApiResponse>,
                     response: Response<NewsApiResponse>
                 ) {
-                    if(!response.isSuccessful){
+                    if (!response.isSuccessful) {
                         Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                     }
 
@@ -52,19 +53,66 @@ class RequestManager(
 
 
             })
-        } catch(e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
+    fun getNewsEverything(
+        listener: OnFetchDataListener<NewsApiResponse>,
+        query: String?,
+        sources: String?
+    ) {
+        val callNewsApi: CallNewsApi = retrofit.create(CallNewsApi::class.java)
+        val call: Call<NewsApiResponse> = callNewsApi.callEverything(
+            query = query,
+            sources = sources,
+            language = "en",
+            api_key = context.getString(R.string.api_key)
+        )
+
+        try {
+            call.enqueue(object : Callback<NewsApiResponse> {
+                override fun onResponse(
+                    call: Call<NewsApiResponse>,
+                    response: Response<NewsApiResponse>
+                ) {
+                    if (!response.isSuccessful) {
+                        Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                    }
+
+                    listener.onFetchData(response.body()!!.articles, response.message())
+                }
+
+                override fun onFailure(call: Call<NewsApiResponse>, t: Throwable) {
+                    listener.onError("Request failed")
+                }
+            })
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+
+    }
+
     interface CallNewsApi {
         @GET("top-headlines")
-
         fun callHeadlines(
             @Query("country") country: String,
             @Query("category") category: String?,
             @Query("q") query: String?,
             @Query("apiKey") api_key: String
         ): Call<NewsApiResponse>
+
+
+        @GET("everything")
+        fun callEverything(
+            @Query("q") query: String?,
+            @Query("sources") sources: String?,
+            @Query("language") language: String?,
+            @Query("apiKey") api_key: String?,
+        ): Call<NewsApiResponse>
     }
+
 }

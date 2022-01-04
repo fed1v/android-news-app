@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
     private lateinit var dialog: ProgressDialog
 
     private var current_category: String? = null
+    private var current_sources: String? = "CNN, techcrunch"
 
     private lateinit var btn_all: Button
     private lateinit var btn_business: Button
@@ -46,7 +47,12 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 dialog.show()
 
                 val manager: RequestManager = RequestManager(this@MainActivity)
-                manager.getNewsHeadlines(listener, current_category, query)
+
+                if(current_category == null){
+                    manager.getNewsEverything(listener, query, current_sources)
+                } else{
+                    manager.getNewsHeadlines(listener, current_category, query)
+                }
 
                 return true
             }
@@ -101,7 +107,11 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         dialog.show()
 
         val manager: RequestManager = RequestManager(this)
-        manager.getNewsHeadlines(listener, category, null)
+        if(current_category == null){
+            manager.getNewsEverything(listener, null, "CNN,techcrunch")
+        } else{
+            manager.getNewsHeadlines(listener, category, null)
+        }
     }
 
     override fun onNewsClicked(headlines: NewsHeadlines) {
