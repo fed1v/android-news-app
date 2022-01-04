@@ -19,13 +19,16 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
     private lateinit var adapter: CustomAdapter
     private lateinit var dialog: ProgressDialog
 
-    private lateinit var b1: Button
-    private lateinit var b2: Button
-    private lateinit var b3: Button
-    private lateinit var b4: Button
-    private lateinit var b5: Button
-    private lateinit var b6: Button
-    private lateinit var b7: Button
+    private var current_category: String? = null
+
+    private lateinit var btn_all: Button
+    private lateinit var btn_business: Button
+    private lateinit var btn_entertainment: Button
+    private lateinit var btn_general: Button
+    private lateinit var btn_health: Button
+    private lateinit var btn_science: Button
+    private lateinit var btn_sports: Button
+    private lateinit var btn_technology: Button
 
     private lateinit var searchView: SearchView
 
@@ -34,6 +37,8 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        current_category = null
+
         searchView = findViewById(R.id.search_view)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -41,7 +46,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 dialog.show()
 
                 val manager: RequestManager = RequestManager(this@MainActivity)
-                manager.getNewsHeadlines(listener, "general", query)
+                manager.getNewsHeadlines(listener, current_category, query)
 
                 return true
             }
@@ -55,26 +60,29 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         dialog.setTitle("Fetching news articles...")
         dialog.show()
 
-        b1 = findViewById(R.id.btn_1)
-        b1.setOnClickListener(this)
+        btn_all = findViewById(R.id.btn_all)  // TODO now all is general!
+        btn_all.setOnClickListener(this)
 
-        b2 = findViewById(R.id.btn_2)
-        b2.setOnClickListener(this)
+        btn_business = findViewById(R.id.btn_business)
+        btn_business.setOnClickListener(this)
 
-        b3 = findViewById(R.id.btn_3)
-        b3.setOnClickListener(this)
+        btn_entertainment = findViewById(R.id.btn_entertainment)
+        btn_entertainment.setOnClickListener(this)
 
-        b4 = findViewById(R.id.btn_4)
-        b4.setOnClickListener(this)
+        btn_general = findViewById(R.id.btn_general)
+        btn_general.setOnClickListener(this)
 
-        b5 = findViewById(R.id.btn_5)
-        b5.setOnClickListener(this)
+        btn_health = findViewById(R.id.btn_health)
+        btn_health.setOnClickListener(this)
 
-        b6 = findViewById(R.id.btn_6)
-        b6.setOnClickListener(this)
+        btn_science = findViewById(R.id.btn_science)
+        btn_science.setOnClickListener(this)
 
-        b7 = findViewById(R.id.btn_7)
-        b7.setOnClickListener(this)
+        btn_sports = findViewById(R.id.btn_sports)
+        btn_sports.setOnClickListener(this)
+
+        btn_technology = findViewById(R.id.btn_technology)
+        btn_technology.setOnClickListener(this)
 
 
         val manager: RequestManager = RequestManager(this)
@@ -83,7 +91,11 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
 
     override fun onClick(v: View?) {
         val button: Button = v as Button
-        val category: String = button.text.toString()
+        var category: String? = null
+        if(button.text.toString() != "all"){
+            category = button.text.toString()
+        }
+        current_category = category
 
         dialog.setTitle("Fetching news articles of $category")
         dialog.show()

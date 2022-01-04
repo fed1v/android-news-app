@@ -27,7 +27,7 @@ class CustomAdapter(
         if(headline.urlToImage != null){
             Picasso.get().load(headline.urlToImage).into(holder.img_headline)
         } else{
-            // TODO
+            holder.img_headline.setImageResource(R.drawable.not_available)
         }
 
         holder.cardView.setOnClickListener{

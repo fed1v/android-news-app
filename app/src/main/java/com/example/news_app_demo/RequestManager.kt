@@ -22,7 +22,7 @@ class RequestManager(
 
     fun getNewsHeadlines(
         listener: OnFetchDataListener<NewsApiResponse>,
-        category: String,
+        category: String?,
         query: String?
     ) {
         val callNewsApi: CallNewsApi = retrofit.create(CallNewsApi::class.java)
@@ -40,7 +40,7 @@ class RequestManager(
                     response: Response<NewsApiResponse>
                 ) {
                     if(!response.isSuccessful){
-                        Toast.makeText(context, "Errpr", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                     }
 
                     listener.onFetchData(response.body()!!.articles, response.message())
@@ -62,7 +62,7 @@ class RequestManager(
 
         fun callHeadlines(
             @Query("country") country: String,
-            @Query("category") category: String,
+            @Query("category") category: String?,
             @Query("q") query: String?,
             @Query("apiKey") api_key: String
         ): Call<NewsApiResponse>
