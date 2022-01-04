@@ -10,7 +10,7 @@ import com.squareup.picasso.Picasso
 class CustomAdapter(
     var context: Context,
     var headlines: List<NewsHeadlines>,
-    var listener: SelectListener
+    var selectListener: SelectListener
 ) : RecyclerView.Adapter<CustomViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
@@ -33,7 +33,7 @@ class CustomAdapter(
         }
 
         holder.cardView.setOnClickListener{
-            listener.onNewsClicked(headline)
+            selectListener.onNewsClicked(headline)
         }
 
     }

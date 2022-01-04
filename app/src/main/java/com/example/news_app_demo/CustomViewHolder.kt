@@ -1,12 +1,13 @@
 package com.example.news_app_demo
 
+import android.view.ContextMenu
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
-class CustomViewHolder(var itemView: View): RecyclerView.ViewHolder(itemView) {
+class CustomViewHolder(var itemView: View): RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener {
     var cardView: CardView
     var text_title: TextView
     var text_source: TextView
@@ -22,5 +23,15 @@ class CustomViewHolder(var itemView: View): RecyclerView.ViewHolder(itemView) {
         cardView = itemView.findViewById(R.id.item_card)
         text_description = itemView.findViewById(R.id.text_description)
         text_date = itemView.findViewById(R.id.text_date) // TODO correct time format
+        cardView.setOnCreateContextMenuListener(this)
+    }
+
+    override fun onCreateContextMenu(
+        menu: ContextMenu?,
+        v: View?,
+        menuInfo: ContextMenu.ContextMenuInfo?
+    ) {
+        menu?.add(adapterPosition, 121, 0, "Bookmarks")
+        menu?.add(adapterPosition, 122, 1, "Share")
     }
 }

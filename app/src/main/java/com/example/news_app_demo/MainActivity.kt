@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.text.TextUtils.join
+import android.view.ContextMenu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -74,7 +76,13 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 if (current_category == null) {
                     manager.getNewsEverything(listener, query, current_sources)
                 } else {
-                    manager.getNewsHeadlines(listener, current_category, query, string_sources, current_country_api)
+                    manager.getNewsHeadlines(
+                        listener,
+                        current_category,
+                        query,
+                        string_sources,
+                        current_country_api
+                    )
                 }
 
                 return true
@@ -134,14 +142,25 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 }
                 .setPositiveButton("Ok", null)
                 .setNegativeButton("Cancel", null)
-                .show()
+                .show() //TODO
         }
 
-
-
-
-        val manager: RequestManager = RequestManager(this)
+        val manager = RequestManager(this)
         manager.getNewsHeadlines(listener, "general", null, string_sources, current_country_api)
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            121 -> {
+                println("Bookmarks option")
+                return true
+            }
+            122 -> {
+                println("Share option")
+                return true
+            }
+            else -> return super.onContextItemSelected(item)
+        }
     }
 
     private fun openCountrySettings() {
@@ -152,47 +171,46 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 println("index: $which")
                 country_n = which
             }
-            .setPositiveButton("Ok"){ dialog, which ->
+            .setPositiveButton("Ok") { dialog, which ->
                 country_num = country_n
                 changeCurrentCountry()
             }
-            .setNegativeButton("Cancel"){ dialog, which ->
+            .setNegativeButton("Cancel") { dialog, which ->
                 current_country = countries[country_num]
             }
             .show()
     }
 
-    fun openSourceSettings(){
+    fun openSourceSettings() {
         MaterialAlertDialogBuilder(this)
             .setTitle("Source")
-            .setMultiChoiceItems(sources, current_checked_sources){ dialog, which, isChecked ->
+            .setMultiChoiceItems(sources, current_checked_sources) { dialog, which, isChecked ->
                 current_checked_sources[which] = isChecked
             }
-            .setPositiveButton("Ok"){ dialog, which ->
+            .setPositiveButton("Ok") { dialog, which ->
                 changeSources()
                 println("Ok $which")
             }
-            .setNeutralButton("Reset"){ dialog, which ->
+            .setNeutralButton("Reset") { dialog, which ->
                 println("Reset $which")
 
             }
-            .setNegativeButton("Cancel"){ dialog, which ->
+            .setNegativeButton("Cancel") { dialog, which ->
                 println("Cancel $which")
 
             }
-            .show()
-
+            .show() //TODO
     }
 
-    fun changeCurrentCountry(){
+    fun changeCurrentCountry() {
         current_country = countries[country_num]
         current_country_api = countries_api[country_num]
     }
 
-    fun changeSources(){
-        var result_sources_list = arrayListOf<String>()
-        for(i in 0..2){
-            if(current_checked_sources[i]){
+    fun changeSources() {
+        val result_sources_list = arrayListOf<String>()
+        for (i in 0..2) {
+            if (current_checked_sources[i]) {
                 result_sources_list.add(sources_api[i])
             }
         }
@@ -224,7 +242,6 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
             Intent(this, DetailsActivity::class.java)
                 .putExtra("data", headlines)
         )
-
     }
 
     private val listener: OnFetchDataListener<NewsApiResponse> =
@@ -235,9 +252,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 } else {
                     showNews(newsHeadlinesList)
                 }
-
                 dialog.dismiss()
-
             }
 
             override fun onError(message: String) {
@@ -253,6 +268,4 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         adapter = CustomAdapter(this, newsHeadlinesList, this)
         recyclerView.adapter = adapter
     }
-
-
 }
