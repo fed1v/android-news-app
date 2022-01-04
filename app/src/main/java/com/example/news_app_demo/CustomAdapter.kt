@@ -24,10 +24,12 @@ class CustomAdapter(
 
         holder.text_title.setText(headline.title)
         holder.text_source.setText(headline.source?.name)
-        if(headline.urlToImage != null/* && headline.urlToImage != ""*/){
+        holder.text_description.setText(headline.description)
+        holder.text_date.setText(headline.publishedAt)
+        if(headline.urlToImage != null && headline.urlToImage != ""){
             Picasso.get().load(headline.urlToImage).into(holder.img_headline)
         } else{
-            holder.img_headline.setImageResource(R.drawable.not_available)  // TODO it doesnt work
+            holder.img_headline.setImageResource(R.drawable.not_available)  // TODO it works badly
         }
 
         holder.cardView.setOnClickListener{

@@ -10,6 +10,9 @@ class CustomViewHolder(var itemView: View): RecyclerView.ViewHolder(itemView) {
     var cardView: CardView
     var text_title: TextView
     var text_source: TextView
+    var text_date: TextView
+    var text_description: TextView
+
     var img_headline: ImageView
 
     init{
@@ -17,5 +20,7 @@ class CustomViewHolder(var itemView: View): RecyclerView.ViewHolder(itemView) {
         text_source = itemView.findViewById(R.id.text_source)
         img_headline = itemView.findViewById(R.id.img_headline)
         cardView = itemView.findViewById(R.id.item_card)
+        text_description = itemView.findViewById(R.id.text_description)
+        text_date = itemView.findViewById(R.id.text_date) // TODO correct time format
     }
 }

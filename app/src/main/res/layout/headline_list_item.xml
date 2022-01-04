@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_card"
     app:cardElevation="8dp"
     android:layout_margin="8dp"
@@ -26,21 +27,44 @@
 
             <TextView
                 android:id="@+id/text_title"
-                android:textSize="22sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                tools:text="Title"
+                android:maxLines="3"/>
+
+
+            <TextView
+                android:id="@+id/text_description"
+                android:layout_marginTop="2dp"
+                android:textSize="11sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Description"
                 android:maxLines="3"/>
 
             <TextView
-                android:id="@+id/text_source"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/purple_500"
-                android:layout_marginTop="6dp"
+                android:id="@+id/text_date"
+                android:layout_marginTop="2dp"
+                android:textSize="12sp"
+                android:textColor="@color/black"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                tools:text="Date"
+                />
+
+
+            <TextView
+                android:id="@+id/text_source"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/purple_500"
+                android:layout_marginTop="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Source"
                 android:maxLines="1"/>
 
 
