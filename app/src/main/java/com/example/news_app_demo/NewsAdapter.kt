@@ -31,7 +31,12 @@ class NewsAdapter(
         holder.text_date.setText(time_string)
 
         if(headline.urlToImage != null && headline.urlToImage != ""){
-            Picasso.get().load(headline.urlToImage).into(holder.img_headline)
+            Picasso
+                .get()
+                .load(headline.urlToImage)
+                .resize(2048, 1600)
+                .onlyScaleDown()
+                .into(holder.img_headline)
         } else{
             holder.img_headline.setImageResource(R.drawable.not_available)  // TODO it works badly
         }

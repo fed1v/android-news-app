@@ -24,9 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
-    val names: Array<String> = arrayOf("Ivan", "Oleg", "Sergey")
-
-    //    private var manager: RequestManager = RequestManager(this)
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: NewsAdapter
     private lateinit var dialog: ProgressDialog
@@ -290,6 +287,4 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         adapter = NewsAdapter(requireContext(), newsHeadlinesList, this)
         recyclerView.adapter = adapter
     }
-
-
 }

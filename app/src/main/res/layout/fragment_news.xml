@@ -134,21 +134,11 @@
 
     </HorizontalScrollView>
 
-    <!--<androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginHorizontal="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="0dp"
-        android:layout_weight="1"
-        tools:listitem="@layout/news_item" />-->
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/news_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
+        android:layout_marginHorizontal="6dp"
         />
 
 </LinearLayout>
