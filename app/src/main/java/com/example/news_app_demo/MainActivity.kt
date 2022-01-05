@@ -128,11 +128,9 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 .setItems(options) { dialog, which ->
                     when (which) {
                         0 -> {
-                            println("Country: $current_country")
                             openCountrySettings()
                         }
                         1 -> {
-                            println("Source")
                             openSourceSettings()
                         }
                         2 -> {
@@ -151,16 +149,25 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
-            121 -> {
+            121 -> {  // Bookmarks
                 println("Bookmarks option")
                 return true
             }
-            122 -> {
-                println("Share option")
+            122 -> {  // Share
+                shareLink(item.groupId)
                 return true
             }
             else -> return super.onContextItemSelected(item)
         }
+    }
+
+    private fun shareLink(item: Int){
+        var shareIntent = Intent().apply{
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, adapter.headlines[item].url)
+            type = "text/plain"
+        }
+        startActivity(shareIntent)
     }
 
     private fun openCountrySettings() {
@@ -182,18 +189,20 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
     }
 
     fun openSourceSettings() {
+        val temp_checled_sources = current_checked_sources
         MaterialAlertDialogBuilder(this)
             .setTitle("Source")
             .setMultiChoiceItems(sources, current_checked_sources) { dialog, which, isChecked ->
-                current_checked_sources[which] = isChecked
+                temp_checled_sources[which] = isChecked
             }
             .setPositiveButton("Ok") { dialog, which ->
+                current_checked_sources = temp_checled_sources
                 changeSources()
                 println("Ok $which")
             }
             .setNeutralButton("Reset") { dialog, which ->
-                println("Reset $which")
-
+                string_sources = null
+                for(i in current_checked_sources.indices) current_checked_sources[i] = false
             }
             .setNegativeButton("Cancel") { dialog, which ->
                 println("Cancel $which")
@@ -258,7 +267,6 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
             override fun onError(message: String) {
                 Toast.makeText(this@MainActivity, "Error", Toast.LENGTH_SHORT).show()
             }
-
         }
 
     private fun showNews(newsHeadlinesList: List<NewsHeadlines>) {

@@ -45,15 +45,12 @@ class RequestManager(
                     if (!response.isSuccessful) {
                         Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                     }
-
                     listener.onFetchData(response.body()!!.articles, response.message())
                 }
 
                 override fun onFailure(call: Call<NewsApiResponse>, t: Throwable) {
                     listener.onError("Request failed")
                 }
-
-
             })
         } catch (e: Exception) {
             e.printStackTrace()
@@ -82,7 +79,6 @@ class RequestManager(
                     if (!response.isSuccessful) {
                         Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                     }
-
                     listener.onFetchData(response.body()!!.articles, response.message())
                 }
 
@@ -94,8 +90,6 @@ class RequestManager(
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
-
     }
 
     interface CallNewsApi {
@@ -108,7 +102,6 @@ class RequestManager(
             @Query("apiKey") api_key: String
         ): Call<NewsApiResponse>
 
-
         @GET("everything")
         fun callEverything(
             @Query("q") query: String?,
@@ -117,5 +110,4 @@ class RequestManager(
             @Query("apiKey") api_key: String?,
         ): Call<NewsApiResponse>
     }
-
 }

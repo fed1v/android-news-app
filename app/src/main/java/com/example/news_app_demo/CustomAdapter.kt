@@ -25,7 +25,11 @@ class CustomAdapter(
         holder.text_title.setText(headline.title)
         holder.text_source.setText(headline.source?.name)
         holder.text_description.setText(headline.description)
-        holder.text_date.setText(headline.publishedAt)
+
+        val time_string = headline.publishedAt.substring(0..9) + " " + headline.publishedAt.substring(11..18)
+
+        holder.text_date.setText(time_string)
+
         if(headline.urlToImage != null && headline.urlToImage != ""){
             Picasso.get().load(headline.urlToImage).into(holder.img_headline)
         } else{

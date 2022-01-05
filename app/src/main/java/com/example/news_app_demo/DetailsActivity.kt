@@ -30,9 +30,11 @@ class DetailsActivity : AppCompatActivity() {
 
         headlines = intent.getSerializableExtra("data") as NewsHeadlines
 
+        val time_string = headlines.publishedAt.substring(0..9) + " " + headlines.publishedAt.substring(11..18)
+
         txt_title.setText(headlines.title)
         txt_author.setText(headlines.author)
-        txt_time.setText(headlines.publishedAt)
+        txt_time.setText(time_string)
         txt_detail.setText(headlines.description)
         txt_content.setText(headlines.content)
         Picasso.get().load(headlines.urlToImage).into(img_news)
