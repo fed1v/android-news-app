@@ -7,19 +7,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app_demo.Models.NewsHeadlines
 import com.squareup.picasso.Picasso
 
-class CustomAdapter(
+class NewsAdapter(
     var context: Context,
     var headlines: List<NewsHeadlines>,
     var selectListener: SelectListener
-) : RecyclerView.Adapter<CustomViewHolder>() {
+) : RecyclerView.Adapter<NewsViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
-        return CustomViewHolder(
-            LayoutInflater.from(context).inflate(R.layout.headline_list_item, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
+        return NewsViewHolder(
+            LayoutInflater.from(context).inflate(R.layout.news_item, parent, false)
         )
     }
 
-    override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
         val headline = headlines[position]
 
         holder.text_title.setText(headline.title)

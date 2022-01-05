@@ -1,29 +1,31 @@
-package com.example.news_app_demo
+package com.example.news_app_demo.Fragments
 
 import android.app.ProgressDialog
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.TextUtils.join
+import android.text.TextUtils
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.news_app_demo.Fragments.BookmarksFragment
-import com.example.news_app_demo.Fragments.NewsFragment
-import com.example.news_app_demo.Fragments.SettingsFragment
-import com.example.news_app_demo.Fragments.StatsFragment
+import com.example.news_app_demo.*
 import com.example.news_app_demo.Models.NewsApiResponse
 import com.example.news_app_demo.Models.NewsHeadlines
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
+
+class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
+
+    val names: Array<String> = arrayOf("Ivan", "Oleg", "Sergey")
+
     //    private var manager: RequestManager = RequestManager(this)
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: NewsAdapter
@@ -61,20 +63,23 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
 
     private lateinit var bottomNavigationView: BottomNavigationView
 
+    private lateinit var current_view: View
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        current_view = LayoutInflater.from(context).inflate(R.layout.fragment_news, container, false)
 
         current_category = null
 
-        searchView = findViewById(R.id.search_view)
+        searchView = current_view.findViewById(R.id.search_view)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 dialog.setTitle("Fetching news articles of $query")
                 dialog.show()
 
-                val manager: RequestManager = RequestManager(this@MainActivity)
+                val manager: RequestManager = RequestManager(requireContext())
 
                 if (current_category == null) {
                     manager.getNewsEverything(listener, query, current_sources)
@@ -96,37 +101,37 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
             }
         })
 
-        dialog = ProgressDialog(this)
+        dialog = ProgressDialog(requireContext())
         dialog.setTitle("Fetching news articles...")
         dialog.show()
 
-        btn_all = findViewById(R.id.btn_all)
+        btn_all = current_view.findViewById(R.id.btn_all)
         btn_all.setOnClickListener(this)
 
-        btn_business = findViewById(R.id.btn_business)
+        btn_business = current_view.findViewById(R.id.btn_business)
         btn_business.setOnClickListener(this)
 
-        btn_entertainment = findViewById(R.id.btn_entertainment)
+        btn_entertainment = current_view.findViewById(R.id.btn_entertainment)
         btn_entertainment.setOnClickListener(this)
 
-        btn_general = findViewById(R.id.btn_general)
+        btn_general = current_view.findViewById(R.id.btn_general)
         btn_general.setOnClickListener(this)
 
-        btn_health = findViewById(R.id.btn_health)
+        btn_health = current_view.findViewById(R.id.btn_health)
         btn_health.setOnClickListener(this)
 
-        btn_science = findViewById(R.id.btn_science)
+        btn_science = current_view.findViewById(R.id.btn_science)
         btn_science.setOnClickListener(this)
 
-        btn_sports = findViewById(R.id.btn_sports)
+        btn_sports = current_view.findViewById(R.id.btn_sports)
         btn_sports.setOnClickListener(this)
 
-        btn_technology = findViewById(R.id.btn_technology)
+        btn_technology = current_view.findViewById(R.id.btn_technology)
         btn_technology.setOnClickListener(this)
 
-        btn_options = findViewById(R.id.btn_options)
+        btn_options = current_view.findViewById(R.id.btn_options)
         btn_options.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Options")
                 .setItems(options) { dialog, which ->
                     when (which) {
@@ -146,24 +151,14 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 .show() //TODO
         }
 
-        bottomNavigationView = findViewById(R.id.bottom_nav)
-        bottomNavigationView.setOnItemSelectedListener {item ->
-            val selectedFragment: Fragment = when(item.itemId){
-                R.id.bookmarksFragment -> BookmarksFragment()
-                R.id.statsFragment -> StatsFragment()
-                R.id.settingsFragment -> SettingsFragment()
-                else -> NewsFragment()
-            }
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, selectedFragment)
-                .commit()
-
-            return@setOnItemSelectedListener true
-        }
-
-        val manager = RequestManager(this)
+        val manager = RequestManager(requireContext())
         manager.getNewsHeadlines(listener, "general", null, string_sources, current_country_api)
+
+
+
+        //
+
+        return current_view
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -191,7 +186,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
 
     private fun openCountrySettings() {
         var country_n = country_num
-        MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Country")
             .setSingleChoiceItems(countries, country_num) { dialog, which ->
                 println("index: $which")
@@ -209,7 +204,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
 
     fun openSourceSettings() {
         val temp_checled_sources = current_checked_sources
-        MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Source")
             .setMultiChoiceItems(sources, current_checked_sources) { dialog, which, isChecked ->
                 temp_checled_sources[which] = isChecked
@@ -242,7 +237,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
                 result_sources_list.add(sources_api[i])
             }
         }
-        string_sources = join(",", result_sources_list)
+        string_sources = TextUtils.join(",", result_sources_list)
         println("String sources: $string_sources")
     }
 
@@ -257,7 +252,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         dialog.setTitle("Fetching news articles of $category")
         dialog.show()
 
-        val manager: RequestManager = RequestManager(this)
+        val manager: RequestManager = RequestManager(requireContext())
         if (current_category == null) {
             manager.getNewsEverything(listener, null, "CNN,techcrunch")
         } else {
@@ -267,7 +262,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
 
     override fun onNewsClicked(headlines: NewsHeadlines) {
         startActivity(
-            Intent(this, DetailsActivity::class.java)
+            Intent(requireContext(), DetailsActivity::class.java)
                 .putExtra("data", headlines)
         )
     }
@@ -276,7 +271,7 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
         object : OnFetchDataListener<NewsApiResponse> {
             override fun onFetchData(newsHeadlinesList: List<NewsHeadlines>, message: String) {
                 if (newsHeadlinesList.isEmpty()) {
-                    Toast.makeText(this@MainActivity, "Nothing found", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Nothing found", Toast.LENGTH_SHORT).show()
                 } else {
                     showNews(newsHeadlinesList)
                 }
@@ -284,15 +279,17 @@ class MainActivity : AppCompatActivity(), SelectListener, View.OnClickListener {
             }
 
             override fun onError(message: String) {
-                Toast.makeText(this@MainActivity, "Error", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
             }
         }
 
     private fun showNews(newsHeadlinesList: List<NewsHeadlines>) {
-        recyclerView = findViewById(R.id.recycler_main)
+        recyclerView = current_view.findViewById(R.id.news_recyclerView)
         recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = GridLayoutManager(this, 1)
-        adapter = NewsAdapter(this, newsHeadlinesList, this)
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+        adapter = NewsAdapter(requireContext(), newsHeadlinesList, this)
         recyclerView.adapter = adapter
     }
+
+
 }

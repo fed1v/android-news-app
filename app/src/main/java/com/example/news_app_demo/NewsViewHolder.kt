@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
-class CustomViewHolder(var itemView: View): RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener {
+class NewsViewHolder(var itemView: View): RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener {
     var cardView: CardView
     var text_title: TextView
     var text_source: TextView
