@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.news_app_demo">
+    package="com.example.news_app">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -14,10 +14,10 @@
         android:usesCleartextTraffic="true"
         >
         <activity
-            android:name=".DetailsActivity"
+            android:name="com.example.news_app.DetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.news_app.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,4 +1,4 @@
-package com.example.news_app_demo.Fragments
+package com.example.news_app.Fragments
 
 import android.app.ProgressDialog
 import android.content.Intent
@@ -13,13 +13,11 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.navigation.NavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.news_app_demo.*
-import com.example.news_app_demo.Models.NewsApiResponse
-import com.example.news_app_demo.Models.NewsHeadlines
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.example.news_app.*
+import com.example.news_app.Models.NewsApiResponse
+import com.example.news_app.Models.NewsHeadlines
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 

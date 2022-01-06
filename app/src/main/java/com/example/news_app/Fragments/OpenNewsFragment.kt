@@ -1,4 +1,4 @@
-package com.example.news_app_demo.Fragments
+package com.example.news_app.Fragments
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,11 +8,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.addCallback
 import androidx.appcompat.widget.Toolbar
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
-import com.example.news_app_demo.Models.NewsHeadlines
-import com.example.news_app_demo.R
+import com.example.news_app.Models.NewsHeadlines
+import com.example.news_app.R
 
 class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var curr_view: View

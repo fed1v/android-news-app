@@ -1,4 +1,4 @@
-package com.example.news_app_demo.Models
+package com.example.news_app.Models
 
 import java.io.Serializable
 

@@ -1,10 +1,10 @@
-package com.example.news_app_demo
+package com.example.news_app
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
-import com.example.news_app_demo.Models.NewsHeadlines
+import com.example.news_app.Models.NewsHeadlines
 import com.squareup.picasso.Picasso
 
 class DetailsActivity : AppCompatActivity() {

@@ -1,8 +1,8 @@
-package com.example.news_app_demo
+package com.example.news_app
 
 import android.content.Context
 import android.widget.Toast
-import com.example.news_app_demo.Models.NewsApiResponse
+import com.example.news_app.Models.NewsApiResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

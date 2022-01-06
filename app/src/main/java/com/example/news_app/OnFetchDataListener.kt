@@ -1,6 +1,6 @@
-package com.example.news_app_demo
+package com.example.news_app
 
-import com.example.news_app_demo.Models.NewsHeadlines
+import com.example.news_app.Models.NewsHeadlines
 
 interface OnFetchDataListener<NewsApiResponse> {
     fun onFetchData(newsHeadlinesList: List<NewsHeadlines>, message: String)

@@ -7,17 +7,23 @@
 
     <activity
         android:id="@+id/mainActivity"
-        android:name="com.example.news_app_demo.MainActivity"
+        android:name="com.example.news_app.MainActivity"
         android:label="activity_main"
         tools:layout="@layout/activity_main" />
     <fragment
+        android:id="@+id/bookmarksFragment"
+        android:name="com.example.news_app.Fragments.BookmarksFragment"
+        android:label="fragment_bookmarks"
+        tools:layout="@layout/fragment_bookmarks"
+        />
+    <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.news_app_demo.SettingsFragment"
+        android:name="com.example.news_app.Fragments.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/statsFragment"
-        android:name="com.example.news_app_demo.StatsFragment"
+        android:name="com.example.news_app.Fragments.StatsFragment"
         android:label="fragment_stats"
         tools:layout="@layout/fragment_stats" />
 </navigation>

@@ -1,13 +1,12 @@
-package com.example.news_app_demo
+package com.example.news_app
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import com.example.news_app_demo.Fragments.BookmarksFragment
-import com.example.news_app_demo.Fragments.NewsFragment
-import com.example.news_app_demo.Fragments.SettingsFragment
-import com.example.news_app_demo.Fragments.StatsFragment
+import com.example.news_app.Fragments.BookmarksFragment
+import com.example.news_app.Fragments.NewsFragment
+import com.example.news_app.Fragments.SettingsFragment
+import com.example.news_app.Fragments.StatsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {

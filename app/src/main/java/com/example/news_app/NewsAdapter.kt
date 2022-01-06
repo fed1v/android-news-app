@@ -1,10 +1,10 @@
-package com.example.news_app_demo
+package com.example.news_app
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.news_app_demo.Models.NewsHeadlines
+import com.example.news_app.Models.NewsHeadlines
 import com.squareup.picasso.Picasso
 
 class NewsAdapter(
@@ -38,7 +38,7 @@ class NewsAdapter(
                 .onlyScaleDown()
                 .into(holder.img_headline)
         } else{
-            holder.img_headline.setImageResource(R.drawable.not_available)  // TODO it works badly
+            holder.img_headline.setImageResource(R.drawable.not_available)  // TODO
         }
 
         holder.cardView.setOnClickListener{
