@@ -9,7 +9,7 @@ import com.example.news_app_demo.Fragments.SettingsFragment
 import com.example.news_app_demo.Fragments.StatsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class MainActivity : AppCompatActivity()/*, SelectListener, View.OnClickListener*/ {
+class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {

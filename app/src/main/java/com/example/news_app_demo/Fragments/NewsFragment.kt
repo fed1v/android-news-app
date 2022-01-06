@@ -151,10 +151,6 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         val manager = RequestManager(requireContext())
         manager.getNewsHeadlines(listener, "general", null, string_sources, current_country_api)
 
-
-
-        //
-
         return current_view
     }
 
@@ -258,10 +254,11 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     }
 
     override fun onNewsClicked(headlines: NewsHeadlines) {
-        startActivity(
-            Intent(requireContext(), DetailsActivity::class.java)
-                .putExtra("data", headlines)
-        )
+        parentFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, OpenNewsFragment(headlines))
+    //        .addToBackStack(null)  // TODO
+            .commit()
     }
 
     private val listener: OnFetchDataListener<NewsApiResponse> =
