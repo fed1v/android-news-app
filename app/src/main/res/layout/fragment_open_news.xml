@@ -3,14 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.OpenNewsFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    >
+    tools:context=".Fragments.OpenNewsFragment">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_open_news"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/design_default_color_primary"
+        app:menu="@menu/top_menu"
+        />
 
     <WebView
         android:id="@+id/web_view_news"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

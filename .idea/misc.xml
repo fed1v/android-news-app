@@ -6,6 +6,7 @@
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/drawable/ic_home.xml" value="0.28489583333333335" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/drawable/options_icon.xml" value="0.1734375" />
+        <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/drawable/selector.xml" value="0.2296875" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/layout/activity_details.xml" value="0.1" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/layout/activity_main1.xml" value="0.2390625" />
@@ -28,6 +29,7 @@
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/layout/test_item.xml" value="0.20572916666666666" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/menu/bottom_menu.xml" value="0.25" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/menu/news_menu.xml" value="0.209375" />
+        <entry key="..\:/Users/Ivan/AndroidStudioProjects/newsappdemo/app/src/main/res/menu/top_menu.xml" value="0.2734375" />
       </map>
     </option>
   </component>

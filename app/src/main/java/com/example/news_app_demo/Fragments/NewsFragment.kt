@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app_demo.*
@@ -58,9 +59,8 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private lateinit var searchView: SearchView
 
-    private lateinit var bottomNavigationView: BottomNavigationView
-
     private lateinit var current_view: View
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -169,7 +169,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     }
 
     private fun shareLink(item: Int) {
-        var shareIntent = Intent().apply {
+        val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_TEXT, adapter.headlines[item].url)
             type = "text/plain"

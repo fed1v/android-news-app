@@ -2,6 +2,7 @@ package com.example.news_app_demo
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.example.news_app_demo.Fragments.BookmarksFragment
 import com.example.news_app_demo.Fragments.NewsFragment
@@ -16,6 +17,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        openFragment(NewsFragment())
+
         bottomNavigationView = findViewById(R.id.bottom_nav)
         bottomNavigationView.setOnItemSelectedListener {item ->
             val selectedFragment: Fragment = when(item.itemId){
@@ -24,12 +27,18 @@ class MainActivity : AppCompatActivity() {
                 R.id.settingsFragment -> SettingsFragment()
                 else -> NewsFragment()
             }
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, selectedFragment)
-                .commit()
+            openFragment(selectedFragment)
 
             return@setOnItemSelectedListener true
         }
+
+
+    }
+
+    fun openFragment(selectedFragment: Fragment){
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, selectedFragment)
+            .commit()
     }
 }
