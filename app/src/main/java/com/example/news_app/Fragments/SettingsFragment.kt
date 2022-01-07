@@ -13,6 +13,7 @@ import com.example.news_app.LoginActivity
 import com.example.news_app.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
@@ -25,11 +26,6 @@ class SettingsFragment : Fragment() {
     private lateinit var text_user_email: TextView
 
     private var signInAccount: GoogleSignInAccount? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,15 +40,19 @@ class SettingsFragment : Fragment() {
         text_user_email.text = signInAccount?.email?:"nullEmail"
         text_user_name.text = signInAccount?.displayName?:"nullName"
 
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .build()
+        val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+
         button_logout = current_view.findViewById(R.id.btn_logout)
         button_logout.setOnClickListener {
-            Toast.makeText(context, "Logout...", Toast.LENGTH_SHORT).show()
             FirebaseAuth.getInstance().signOut()
+            googleSignInClient.signOut()
             val intent = Intent(context, LoginActivity::class.java)
             startActivity(intent)
         }
 
         return current_view
     }
-
 }
