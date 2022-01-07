@@ -45,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
         createRequest()
 
         googleSignInAccount = GoogleSignIn.getLastSignedInAccount(this)
-        if (googleSignInAccount != null) {
+        if (googleSignInAccount != null || auth.currentUser != null) {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
@@ -65,17 +65,15 @@ class LoginActivity : AppCompatActivity() {
             callbackManager,
             object : FacebookCallback<LoginResult> {
                 override fun onSuccess(result: LoginResult?) {
-                    println("-------------Success----------")
                     handleFacebookAccessToken(result!!.accessToken)
                 }
 
                 override fun onCancel() {
-                    println("-------------Cancel----------")
 
                 }
 
                 override fun onError(error: FacebookException?) {
-                    println("-------------Error----------")
+                    println("Error: $error")
                 }
             })
 

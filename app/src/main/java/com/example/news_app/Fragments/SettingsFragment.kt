@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.TextView
 import com.example.news_app.LoginActivity
 import com.example.news_app.R
+import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -50,6 +51,7 @@ class SettingsFragment : Fragment() {
         button_logout = current_view.findViewById(R.id.btn_logout)
         button_logout.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
+            LoginManager.getInstance().logOut()
             googleSignInClient.signOut()
             Firebase.auth.signOut()
             val intent = Intent(context, LoginActivity::class.java)
