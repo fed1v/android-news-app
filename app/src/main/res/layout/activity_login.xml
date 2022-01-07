@@ -30,16 +30,6 @@ android:orientation="vertical">
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/btn_facebook"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="20dp"
-            android:src="@drawable/ic_facebook"
-
-            />
-
-        <ImageButton
             android:id="@+id/btn_google"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -59,6 +49,16 @@ android:orientation="vertical">
 
 
     </LinearLayout>
+
+
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button_facebook"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="30dp" />
 
     <Button
         android:layout_weight="1"

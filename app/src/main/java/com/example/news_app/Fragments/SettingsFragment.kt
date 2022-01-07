@@ -8,14 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import com.example.news_app.LoginActivity
 import com.example.news_app.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -25,7 +23,7 @@ class SettingsFragment : Fragment() {
     private lateinit var text_user_name: TextView
     private lateinit var text_user_email: TextView
 
-    private var signInAccount: GoogleSignInAccount? = null
+    private var googleSignInAccount: GoogleSignInAccount? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,10 +33,14 @@ class SettingsFragment : Fragment() {
         text_user_email = current_view.findViewById(R.id.text_user_email)
         text_user_name = current_view.findViewById(R.id.text_user_name)
 
-        signInAccount = GoogleSignIn.getLastSignedInAccount(requireContext())
-
-        text_user_email.text = signInAccount?.email?:"nullEmail"
-        text_user_name.text = signInAccount?.displayName?:"nullName"
+        googleSignInAccount = GoogleSignIn.getLastSignedInAccount(requireContext())
+        if(googleSignInAccount != null){
+            text_user_email.text = googleSignInAccount!!.email
+            text_user_name.text = googleSignInAccount!!.displayName
+        } else{
+            text_user_email.text = Firebase.auth.currentUser?.email?:"-"
+            text_user_name.text = Firebase.auth.currentUser?.displayName?:"-"
+        }
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
@@ -49,6 +51,7 @@ class SettingsFragment : Fragment() {
         button_logout.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
             googleSignInClient.signOut()
+            Firebase.auth.signOut()
             val intent = Intent(context, LoginActivity::class.java)
             startActivity(intent)
         }

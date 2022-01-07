@@ -3,14 +3,22 @@ package com.example.news_app
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
+import com.facebook.AccessToken
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
+import com.facebook.login.widget.LoginButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 
@@ -20,13 +28,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private lateinit var buttonToMainActivity: Button
-    private lateinit var buttonFacebook: ImageButton
     private lateinit var buttonGoogle: ImageButton
     private lateinit var buttonTwitter: ImageButton
+    private lateinit var login_button_facebook: LoginButton
 
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
     private var googleSignInAccount: GoogleSignInAccount? = null
+    private lateinit var callbackManager: CallbackManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,13 +55,29 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
 
-        buttonFacebook = findViewById(R.id.btn_facebook)
         buttonGoogle = findViewById(R.id.btn_google)
         buttonTwitter = findViewById(R.id.btn_twitter)
 
-        buttonFacebook.setOnClickListener {
-            println("Facebook")
-        }
+        login_button_facebook = findViewById(R.id.login_button_facebook)
+        login_button_facebook.setPermissions("email", "public_profile")
+        callbackManager = CallbackManager.Factory.create()
+        login_button_facebook.registerCallback(
+            callbackManager,
+            object : FacebookCallback<LoginResult> {
+                override fun onSuccess(result: LoginResult?) {
+                    println("-------------Success----------")
+                    handleFacebookAccessToken(result!!.accessToken)
+                }
+
+                override fun onCancel() {
+                    println("-------------Cancel----------")
+
+                }
+
+                override fun onError(error: FacebookException?) {
+                    println("-------------Error----------")
+                }
+            })
 
         buttonGoogle.setOnClickListener {
             signInWithGoogle()
@@ -66,7 +91,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun createRequest() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken("64993158520-mg5ljp4isqf7b4ak2cthrbmo9ncrtdeh.apps.googleusercontent.com")
             .requestEmail()
             .build()
 
@@ -89,6 +114,9 @@ class LoginActivity : AppCompatActivity() {
             } catch (e: ApiException) {
                 e.printStackTrace()
             }
+            return
+        } else{
+            callbackManager.onActivityResult(requestCode, resultCode, data)
         }
     }
 
@@ -98,12 +126,29 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    val intent = Intent(applicationContext, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    startMainActivity()
                 } else {
                     Toast.makeText(this, "Auth failed", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun handleFacebookAccessToken(token: AccessToken) {
+        val credential = FacebookAuthProvider.getCredential(token.token)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    startMainActivity()
+                } else {
+                    Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun startMainActivity() {
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }
