@@ -2,8 +2,10 @@ package com.example.news_app.Fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
 import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -18,50 +20,51 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import java.nio.charset.Charset
 
-class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
-    private lateinit var curr_view: View
-    private lateinit var newsWebView: WebView
+class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
+    private lateinit var v: View
     private lateinit var toolbar: Toolbar
+    private lateinit var webView: WebView
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firebaseDatabase: FirebaseDatabase
     private lateinit var usersReference: DatabaseReference
     private lateinit var currentUserReference: DatabaseReference
     private lateinit var userBookmarksReference: DatabaseReference
-    private lateinit var userStatsReference: DatabaseReference
     private var user: FirebaseUser? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        initDatabase()
+    ): View? {
+        v = LayoutInflater.from(context).inflate(R.layout.fragment_open_bookmarks_news, container, false)
 
-        curr_view = inflater.inflate(R.layout.fragment_open_news, container, false)
-        newsWebView = curr_view.findViewById(R.id.web_view_news)
-        newsWebView.webViewClient = WebViewClient()
-        newsWebView.loadUrl(headlines.url)
+        webView = v.findViewById(R.id.web_view_open_bookmarks_news)
+        webView.webViewClient = WebViewClient()
+        webView.loadUrl(headlines.url)
 
-        toolbar = curr_view.findViewById(R.id.toolbar_open_news)
-        toolbar.setOnMenuItemClickListener{
+        toolbar = v.findViewById(R.id.toolbar_open_bookmarks_news)
+        toolbar.setOnMenuItemClickListener {
             when(it.itemId){
                 R.id.mi_share -> shareLink()
-                R.id.mi_bookmark -> addToBookmarks()
+                R.id.mi_delete -> deleteFromBookmarks()
+                R.id.mi_notes -> openNotes()
             }
-            return@setOnMenuItemClickListener true
+            true
         }
+
+        initDatabase()
 
         requireActivity().onBackPressedDispatcher.addCallback{
             requireActivity().supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, NewsFragment())
+                .replace(R.id.fragment_container, BookmarksFragment())
                 .commit()
         }
 
-        return curr_view
+        return v
     }
 
-    private fun initDatabase(){
+    private fun initDatabase() {
         auth = FirebaseAuth.getInstance()
         user = auth.currentUser
         if (user != null) {
@@ -69,15 +72,19 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             usersReference = firebaseDatabase.getReference("users")
             currentUserReference = usersReference.child(user!!.uid)
             userBookmarksReference = currentUserReference.child("bookmarks")
-            userStatsReference = currentUserReference.child("stats")
         }
     }
 
-    private fun addToBookmarks() {
+    private fun openNotes() {
+        //TODO
+        println("Open Notes")
+    }
+
+    private fun deleteFromBookmarks() {
         val urlHashCode =
             Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
-        userBookmarksReference.child(urlHashCode).setValue(headlines)
-        Toast.makeText(requireContext(), "Bookmark added", Toast.LENGTH_SHORT).show()
+        userBookmarksReference.child(urlHashCode).removeValue()
+        Toast.makeText(requireContext(), "Bookmark deleted", Toast.LENGTH_SHORT).show()
     }
 
     private fun shareLink() {
@@ -88,4 +95,5 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         }
         startActivity(shareIntent)
     }
+
 }

@@ -43,7 +43,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var currentUserReference: DatabaseReference
     private lateinit var userBookmarksReference: DatabaseReference
     private lateinit var userStatsReference: DatabaseReference
-    private lateinit var userHelper: UserHelper
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

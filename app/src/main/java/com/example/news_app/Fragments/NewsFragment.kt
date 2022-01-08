@@ -28,10 +28,8 @@ import java.nio.charset.Charset
 
 
 class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
-
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: NewsAdapter
-    private lateinit var dialog: ProgressDialog
 
     private val options: Array<String> = arrayOf("Country", "Source", "Everything/Headlines")
     private val countries: Array<String> = arrayOf("USA", "Russia", "Ukraine", "France")
@@ -58,9 +56,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     private lateinit var btn_science: Button
     private lateinit var btn_sports: Button
     private lateinit var btn_technology: Button
-
     private lateinit var btn_options: ImageButton
-
     private lateinit var searchView: SearchView
 
     private lateinit var current_view: View
@@ -95,10 +91,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         searchView = current_view.findViewById(R.id.search_view)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                dialog.setTitle("Fetching news articles of $query")
-                dialog.show()
-
-                val manager: RequestManager = RequestManager(requireContext())
+                val manager = RequestManager(requireContext())
 
                 if (current_category == null) {
                     manager.getNewsEverything(listener, query, current_sources)
@@ -111,7 +104,6 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                         current_country_api
                     )
                 }
-
                 return true
             }
 
@@ -119,10 +111,6 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                 return false
             }
         })
-
-        dialog = ProgressDialog(requireContext())
-        dialog.setTitle("Fetching news articles...")
-        dialog.show()
 
         btn_all = current_view.findViewById(R.id.btn_all)
         btn_all.setOnClickListener(this)
@@ -210,8 +198,8 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         val headline = adapter.headlines[item]
         val urlHashCode =
             Hashing.sha1().hashString(headline.url, Charset.defaultCharset()).toString()
-    //    usersReference.child("users/${user!!.uid}/bookmarks").setValue(headline)
         userBookmarksReference.child(urlHashCode).setValue(headline)
+        Toast.makeText(requireContext(), "Bookmark added", Toast.LENGTH_SHORT).show()
     }
 
     private fun openCountrySettings() {
@@ -279,10 +267,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         }
         current_category = category
 
-        dialog.setTitle("Fetching news articles of $category")
-        dialog.show()
-
-        val manager: RequestManager = RequestManager(requireContext())
+        val manager = RequestManager(requireContext())
         if (current_category == null) {
             manager.getNewsEverything(listener, null, "CNN,techcrunch")
         } else {
@@ -306,7 +291,6 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                 } else {
                     showNews(newsHeadlinesList)
                 }
-                dialog.dismiss()
             }
 
             override fun onError(message: String) {
@@ -315,10 +299,12 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         }
 
     private fun showNews(newsHeadlinesList: List<NewsHeadlines>) {
-        recyclerView = current_view.findViewById(R.id.news_recyclerView)
-        recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
-        adapter = NewsAdapter(requireContext(), newsHeadlinesList, this)
-        recyclerView.adapter = adapter
+        if(context != null){
+            recyclerView = current_view.findViewById(R.id.news_recyclerView)
+            recyclerView.setHasFixedSize(true)
+            recyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+            adapter = NewsAdapter(requireContext(), newsHeadlinesList, this)
+            recyclerView.adapter = adapter
+        }
     }
 }

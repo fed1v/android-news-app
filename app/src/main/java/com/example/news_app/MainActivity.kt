@@ -41,8 +41,6 @@ class MainActivity : AppCompatActivity() {
 
             return@setOnItemSelectedListener true
         }
-
-
     }
 
     fun openFragment(selectedFragment: Fragment){

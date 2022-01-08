@@ -5,9 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.BookmarksFragment">
 
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/bookmarks_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Bookmarks Fragment" />
+        tools:listitem="@layout/news_item"
+        />
 
 </FrameLayout>
