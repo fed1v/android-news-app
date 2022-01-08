@@ -3,7 +3,6 @@ package com.example.news_app
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
@@ -21,6 +20,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 class LoginActivity : AppCompatActivity() {
     companion object {
@@ -37,6 +38,14 @@ class LoginActivity : AppCompatActivity() {
     private var googleSignInAccount: GoogleSignInAccount? = null
     private lateinit var callbackManager: CallbackManager
 
+    private lateinit var firebaseDatabase: FirebaseDatabase
+    private lateinit var usersReference: DatabaseReference
+    private lateinit var currentUserReference: DatabaseReference
+    private lateinit var userBookmarksReference: DatabaseReference
+    private lateinit var userStatsReference: DatabaseReference
+    private lateinit var userHelper: UserHelper
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -49,6 +58,11 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
+        initView()
+
+    }
+
+    private fun initView() {
         buttonToMainActivity = findViewById(R.id.button_to_mainActivity)
         buttonToMainActivity.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
@@ -84,7 +98,6 @@ class LoginActivity : AppCompatActivity() {
         buttonTwitter.setOnClickListener {
             println("Twitter")
         }
-
     }
 
     private fun createRequest() {
@@ -113,7 +126,7 @@ class LoginActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
             return
-        } else{
+        } else {
             callbackManager.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -123,7 +136,7 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
+                    initUserInDatabase()
                     startMainActivity()
                 } else {
                     Toast.makeText(this, "Auth failed", Toast.LENGTH_SHORT).show()
@@ -131,12 +144,28 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
+    private fun initUserInDatabase() {
+        val user = auth.currentUser
+        if (user != null) {
+            firebaseDatabase = FirebaseDatabase.getInstance()
+            usersReference = firebaseDatabase.getReference("users")
+            currentUserReference = usersReference.child(user.uid)
+            val userMap = mapOf(
+                "email" to user.email,
+                "name" to user.displayName,
+            )
+            currentUserReference.updateChildren(userMap)
+            userBookmarksReference = currentUserReference.child("bookmarks")
+            userStatsReference = currentUserReference.child("stats")
+        }
+    }
+
     private fun handleFacebookAccessToken(token: AccessToken) {
         val credential = FacebookAuthProvider.getCredential(token.token)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
+                    initUserInDatabase()
                     startMainActivity()
                 } else {
                     Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT).show()

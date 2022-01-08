@@ -19,6 +19,12 @@ import com.example.news_app.*
 import com.example.news_app.Models.NewsApiResponse
 import com.example.news_app.Models.NewsHeadlines
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.common.hash.Hashing
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import java.nio.charset.Charset
 
 
 class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
@@ -59,15 +65,33 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private lateinit var current_view: View
 
+    private lateinit var auth: FirebaseAuth
+    private lateinit var firebaseDatabase: FirebaseDatabase
+    private lateinit var usersReference: DatabaseReference
+    private lateinit var currentUserReference: DatabaseReference
+    private lateinit var userBookmarksReference: DatabaseReference
+    private lateinit var userStatsReference: DatabaseReference
+    private var user: FirebaseUser? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        current_view = LayoutInflater.from(context).inflate(R.layout.fragment_news, container, false)
-
+        current_view =
+            LayoutInflater.from(context).inflate(R.layout.fragment_news, container, false)
         current_category = null
 
+        initView()
+        initDatabase()
+
+        val manager = RequestManager(requireContext())
+        manager.getNewsHeadlines(listener, "general", null, string_sources, current_country_api)
+
+        return current_view
+    }
+
+    private fun initView() {
         searchView = current_view.findViewById(R.id.search_view)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -145,17 +169,24 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                 .setNegativeButton("Cancel", null)
                 .show() //TODO
         }
+    }
 
-        val manager = RequestManager(requireContext())
-        manager.getNewsHeadlines(listener, "general", null, string_sources, current_country_api)
-
-        return current_view
+    private fun initDatabase(){
+        auth = FirebaseAuth.getInstance()
+        user = auth.currentUser
+        if (user != null) {
+            firebaseDatabase = FirebaseDatabase.getInstance()
+            usersReference = firebaseDatabase.getReference("users")
+            currentUserReference = usersReference.child(user!!.uid)
+            userBookmarksReference = currentUserReference.child("bookmarks")
+            userStatsReference = currentUserReference.child("stats")
+        }
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             121 -> {  // Bookmarks
-                println("Bookmarks option")
+                addToBookmarks(item.groupId)
                 return true
             }
             122 -> {  // Share
@@ -173,6 +204,14 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
             type = "text/plain"
         }
         startActivity(shareIntent)
+    }
+
+    private fun addToBookmarks(item: Int) {
+        val headline = adapter.headlines[item]
+        val urlHashCode =
+            Hashing.sha1().hashString(headline.url, Charset.defaultCharset()).toString()
+    //    usersReference.child("users/${user!!.uid}/bookmarks").setValue(headline)
+        userBookmarksReference.child(urlHashCode).setValue(headline)
     }
 
     private fun openCountrySettings() {
@@ -255,7 +294,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         parentFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, OpenNewsFragment(headlines))
-    //        .addToBackStack(null)  // TODO
+            //        .addToBackStack(null)  // TODO
             .commit()
     }
 
