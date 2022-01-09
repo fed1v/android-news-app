@@ -30,21 +30,28 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     private lateinit var adapter: NewsAdapter
 
     private val options: Array<String> = arrayOf("Country", "Sources")
-    private val countries: Array<String> = arrayOf("USA", "Russia", "Ukraine", "France")
-    private val countries_api: Array<String> = arrayOf("us", "ru", "ua", "fr")
 
-    private var country_num: Int = 0
+    private val countriesMap = mapOf(
+        "Any" to null,
+        "Australia" to "au",
+        "France" to "fr",
+        "Germany" to "de",
+        "Russia" to "ru",
+        "Ukraine" to "ua",
+        "USA" to "us"
+    )
+    private var current_country_pair: Pair<String, String?> = ("USA" to "us")
+
+    private var country_num: Int = 6
 
 //    private var headlinesSelected: Boolean = true
 
     private var current_category: String? = null
-    private var current_sources: String? = "CNN, techcrunch"
-    private var current_country: String? = countries[country_num]
-    private var current_country_api: String? = countries_api[country_num]
 
     private var sources: Array<String> = arrayOf("CNN", "TechCrunch", "ABC News")
     private var sources_api: Array<String> = arrayOf("cnn", "techcrunch", "abc-news")
-    private var current_checked_sources: BooleanArray = booleanArrayOf(false, true, true)
+    private var current_checked_sources: BooleanArray = booleanArrayOf(false, false, false)
+
     private var string_sources: String? = null
 
     private lateinit var btn_business: Button
@@ -90,7 +97,25 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         searchView = current_view.findViewById(R.id.search_view)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                showNewsHeadlines(current_category!!, query)
+                if (string_sources != null && current_country_pair.second != null) {
+                    Toast.makeText(context, "You can't mix Country and Sources", Toast.LENGTH_SHORT)
+                        .show()
+                    println("Error In SearchView")
+                } else if (string_sources != null) {
+                    showNewsHeadlines(
+                        category = null,
+                        sources = string_sources,
+                        query = query,
+                        country = null
+                    )
+                } else if (current_country_pair.second != null) {
+                    showNewsHeadlines(
+                        category = current_category,
+                        sources = null,
+                        query = query,
+                        country = current_country_pair.second
+                    )
+                }
                 return true
             }
 
@@ -153,7 +178,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                 }
                 .setPositiveButton("Ok", null)
                 .setNegativeButton("Cancel", null)
-                .show() //TODO
+                .show()
         }
     }
 
@@ -211,37 +236,67 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         var country_n = country_num
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Country")
-            .setSingleChoiceItems(countries, country_num) { dialog, which ->
+            .setSingleChoiceItems(countriesMap.keys.toTypedArray(), country_num) { dialog, which ->
                 println("index: $which")
                 country_n = which
             }
             .setPositiveButton("Ok") { dialog, which ->
-                country_num = country_n
-                changeCurrentCountry()
-                showNewsHeadlines()
+                if(country_n != 0 && string_sources != null && string_sources != ""){
+                    Toast.makeText(context, "You can't mix Country and Sources, please Reset sources", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    country_num = country_n
+                    changeCurrentCountry()
+
+                    showNewsHeadlines(
+                        category = current_category,
+                        query = null,
+                        sources = null,
+                        country = current_country_pair.second
+                    )
+                }
             }
-            .setNegativeButton("Cancel") { dialog, which ->
-                current_country = countries[country_num]
-            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
-    fun showNewsHeadlines(category: String = "general", query: String? = null) {
+    fun showNewsHeadlines(
+        category: String? = null,
+        query: String? = null,
+        sources: String? = null,
+        country: String? = current_country_pair.second
+    ) {
         val manager = RequestManager(requireContext())
-        manager.getNewsHeadlines(listener, category, query, string_sources, current_country_api)
+        manager.getNewsHeadlines(
+            listener = listener,
+            category = category,
+            query = query,
+            sources = sources,
+            country = country
+        )
     }
 
     fun openSourceSettings() {
-        val temp_checled_sources = current_checked_sources
+        val temp_checked_sources = current_checked_sources
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Source")
             .setMultiChoiceItems(sources, current_checked_sources) { dialog, which, isChecked ->
-                temp_checled_sources[which] = isChecked
+                temp_checked_sources[which] = isChecked
             }
             .setPositiveButton("Ok") { dialog, which ->
-                current_checked_sources = temp_checled_sources
+                current_checked_sources = temp_checked_sources
                 changeSources()
-                showNewsHeadlines()
+                if (string_sources != null && current_country_pair.second != null) {
+                    Toast.makeText(context, "You can't mix Country and Sources, please set \"Any\" in Country settings", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    showNewsHeadlines(
+                        category = null,
+                        query = null,
+                        country = null,
+                        sources = string_sources
+                    )
+                }
             }
             .setNeutralButton("Reset") { dialog, which ->
                 string_sources = null
@@ -255,8 +310,10 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     }
 
     fun changeCurrentCountry() {
-        current_country = countries[country_num]
-        current_country_api = countries_api[country_num]
+        val country_name = countriesMap.keys.toList()[country_num]
+        val country_code = countriesMap[country_name]
+        current_country_pair = Pair(first = country_name, second = country_code)
+        println(current_country_pair)
     }
 
     fun changeSources() {
@@ -275,11 +332,11 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         current_category = button.text.toString()
         val manager = RequestManager(requireContext())
         manager.getNewsHeadlines(
-            listener,
-            current_category,
-            null,
-            string_sources,
-            current_country_api
+            listener = listener,
+            category = current_category,
+            query = null,
+            sources = null,
+            country = current_country_pair.second
         )
     }
 

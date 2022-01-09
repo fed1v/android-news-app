@@ -11,10 +11,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 import java.lang.Exception
+import java.lang.NullPointerException
 
 class RequestManager(
     val context: Context
 ) {
+    val api_key = R.string.api_key
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl("https://newsapi.org/v2/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -33,7 +35,7 @@ class RequestManager(
             category = category,
             query = query,
             sources = sources,
-            api_key = context.getString(R.string.api_key2)
+            api_key = context.getString(R.string.api_key)
         )
 
         try {
@@ -45,7 +47,12 @@ class RequestManager(
                     if (!response.isSuccessful) {
                         Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                     }
-                    listener.onFetchData(response.body()!!.articles, response.message())
+                    try{
+                        listener.onFetchData(response.body()!!.articles, response.message())
+                    } catch(e: NullPointerException){
+                        Toast.makeText(context, "Exception: $e", Toast.LENGTH_SHORT).show()
+                        e.printStackTrace()
+                    }
                 }
 
                 override fun onFailure(call: Call<NewsApiResponse>, t: Throwable) {
@@ -68,7 +75,7 @@ class RequestManager(
             query = query,
             sources = sources,
             language = language,
-            api_key = context.getString(R.string.api_key2)
+            api_key = context.getString(R.string.api_key)
         )
 
         try {
@@ -80,7 +87,12 @@ class RequestManager(
                     if (!response.isSuccessful) {
                         Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                     }
-                    listener.onFetchData(response.body()!!.articles, response.message())
+                    try{
+                        listener.onFetchData(response.body()!!.articles, response.message())
+                    } catch(e: NullPointerException){
+                        Toast.makeText(context, "Exception: $e", Toast.LENGTH_SHORT).show()
+                        e.printStackTrace()
+                    }
                 }
 
                 override fun onFailure(call: Call<NewsApiResponse>, t: Throwable) {
