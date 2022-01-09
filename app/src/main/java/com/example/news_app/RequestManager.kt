@@ -60,13 +60,14 @@ class RequestManager(
     fun getNewsEverything(
         listener: OnFetchDataListener<NewsApiResponse>,
         query: String?,
-        sources: String?
+        sources: String?,
+        language: String? = "en"
     ) {
         val callNewsApi: CallNewsApi = retrofit.create(CallNewsApi::class.java)
         val call: Call<NewsApiResponse> = callNewsApi.callEverything(
             query = query,
             sources = sources,
-            language = "en",
+            language = language,
             api_key = context.getString(R.string.api_key2)
         )
 

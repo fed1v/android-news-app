@@ -4,16 +4,14 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.news_app.Fragments.BookmarksFragment
-import com.example.news_app.Fragments.NewsFragment
-import com.example.news_app.Fragments.SettingsFragment
-import com.example.news_app.Fragments.StatsFragment
+import com.example.news_app.Fragments.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var auth: FirebaseAuth
+    var showHeadlines: Boolean = true //TODO
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +25,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        openFragment(NewsFragment())
+        if(showHeadlines){
+            openFragment(NewsFragment())
+        } else{
+            openFragment(NewsEverythingFragment())
+        }
 
         bottomNavigationView = findViewById(R.id.bottom_nav)
         bottomNavigationView.setOnItemSelectedListener {item ->
@@ -35,11 +37,10 @@ class MainActivity : AppCompatActivity() {
                 R.id.bookmarksFragment -> BookmarksFragment()
                 R.id.statsFragment -> StatsFragment()
                 R.id.settingsFragment -> SettingsFragment()
-                else -> NewsFragment()
+                else -> if(showHeadlines) NewsFragment() else NewsEverythingFragment()
             }
             openFragment(selectedFragment)
-
-            return@setOnItemSelectedListener true
+            true
         }
     }
 
