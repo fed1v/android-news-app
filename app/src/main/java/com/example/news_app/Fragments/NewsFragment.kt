@@ -303,17 +303,16 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                 for (i in current_checked_sources.indices) current_checked_sources[i] = false
             }
             .setNegativeButton("Cancel") { dialog, which ->
-                println("Cancel $which")
+                println("Cancel $which")  // TODO cancel
 
             }
-            .show() //TODO
+            .show()
     }
 
     fun changeCurrentCountry() {
         val country_name = countriesMap.keys.toList()[country_num]
         val country_code = countriesMap[country_name]
         current_country_pair = Pair(first = country_name, second = country_code)
-        println(current_country_pair)
     }
 
     fun changeSources() {

@@ -30,21 +30,21 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
     private lateinit var adapter: NewsAdapter
 
     private val options: Array<String> = arrayOf("Language", "Sources")
-    private val languages: Array<String> = arrayOf("Any", "English", "Russian", "French")
-    private val languages_api: Array<String> = arrayOf("", "en", "ru", "fr")
 
-    private var language_num: Int = 0
+    private val languagesMap = mapOf(
+        "Any" to null,
+        "English" to "en",
+        "Russian" to "ru",
+        "French" to "fr"
+    )
+    private var current_language_pair: Pair<String, String?> = ("English" to "en")
+    private var language_num: Int = 1
 
 //    private var headlinesSelected: Boolean = true
 
-    //    private var current_category: String? = null
-    private var current_sources: String? = "CNN, techcrunch"
-    private var current_language: String? = languages[language_num]
-    private var current_language_api: String? = languages_api[language_num]
-
     private var sources: Array<String> = arrayOf("CNN", "TechCrunch", "ABC News")
     private var sources_api: Array<String> = arrayOf("cnn", "techcrunch", "abc-news")
-    private var current_checked_sources: BooleanArray = booleanArrayOf(false, true, true)
+    private var current_checked_sources: BooleanArray = booleanArrayOf(false, false, false)
     private var string_sources: String? = null
 
     private lateinit var btn_options: ImageButton
@@ -74,8 +74,11 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
         initView()
         initDatabase()
 
-        val manager = RequestManager(requireContext())
-        manager.getNewsEverything(listener, null, current_sources)
+        showNewsEverything(
+            query = null,
+            sources = string_sources,
+            language = current_language_pair.second
+        )
 
         return current_view
     }
@@ -84,8 +87,11 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
         searchView = current_view.findViewById(R.id.search_view)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                val manager = RequestManager(requireContext())
-                manager.getNewsEverything(listener, query, current_sources, current_language_api)
+                showNewsEverything(
+                    query = query,
+                    sources = string_sources,
+                    language = current_language_pair.second
+                )
                 return true
             }
 
@@ -117,9 +123,7 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
                 }
             }
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-
-            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
 
         btn_options = current_view.findViewById(R.id.btn_options)
@@ -128,15 +132,8 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
                 .setTitle("Options")
                 .setItems(options) { dialog, which ->
                     when (which) {
-                        0 -> {
-                            openLanguageSettings() // Language settings
-                        }
-                        1 -> {
-                            openSourceSettings()
-                        }
-                        2 -> {
-                            println("Everything/Headlines")
-                        }
+                        0 -> openLanguageSettings()
+                        1 -> openSourceSettings()
                     }
                 }
                 .setPositiveButton("Ok", null)
@@ -199,20 +196,37 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
         var language_n = language_num
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Country")
-            .setSingleChoiceItems(languages, language_num) { dialog, which ->
+            .setSingleChoiceItems(languagesMap.keys.toTypedArray(), language_num) { dialog, which ->
                 language_n = which
             }
             .setPositiveButton("Ok") { dialog, which ->
                 language_num = language_n
                 changeCurrentLanguage()
-                val manager = RequestManager(requireContext())
-                manager.getNewsEverything(listener, null, current_sources, current_language_api)
+
+                showNewsEverything(
+                    query = null,
+                    sources = string_sources,
+                    language = current_language_pair.second
+                )
             }
-            .setNegativeButton("Cancel") { dialog, which ->
-                current_language = languages[language_num]
-            }
+            .setNegativeButton("Cancel") { dialog, which -> }
             .show()
     }
+
+    fun showNewsEverything(
+        query: String? = null,
+        sources: String? = null,
+        language: String? = current_language_pair.second
+    ) {
+        val manager = RequestManager(requireContext())
+        manager.getNewsEverything(
+            listener = listener,
+            query = query,
+            sources = sources,
+            language = language
+        )
+    }
+
 
     fun openSourceSettings() {
         val temp_checled_sources = current_checked_sources
@@ -224,23 +238,28 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
             .setPositiveButton("Ok") { dialog, which ->
                 current_checked_sources = temp_checled_sources
                 changeSources()
-                val manager = RequestManager(requireContext())
-                manager.getNewsEverything(listener, null, current_sources, current_language_api)
+
+                showNewsEverything(
+                    query = null,
+                    sources = string_sources,
+                    language = current_language_pair.second
+                )
             }
             .setNeutralButton("Reset") { dialog, which ->
                 string_sources = null
                 for (i in current_checked_sources.indices) current_checked_sources[i] = false
             }
             .setNegativeButton("Cancel") { dialog, which ->
-                println("Cancel $which")
+                println("Cancel $which")  // TODO cancel
 
             }
-            .show() //TODO
+            .show()
     }
 
     fun changeCurrentLanguage() {
-        current_language = languages[language_num]
-        current_language_api = languages_api[language_num]
+        val language_name = languagesMap.keys.toList()[language_num]
+        val language_code = languagesMap[language_name]
+        current_language_pair = Pair(first = language_name, second = language_code)
     }
 
     fun changeSources() {
@@ -253,22 +272,6 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
         string_sources = TextUtils.join(",", result_sources_list)
         println("String sources: $string_sources")
     }
-
-/*    override fun onClick(v: View?) {
-        val button: Button = v as Button
-        var category: String? = null
-        if (button.text.toString() != "all") {
-            category = button.text.toString()
-        }
-        current_category = category
-
-        val manager = RequestManager(requireContext())
-        if (current_category == null) {
-            manager.getNewsEverything(listener, null, "CNN,techcrunch")
-        } else {
-            manager.getNewsHeadlines(listener, category, null, string_sources, current_country_api)
-        }
-    }*/
 
     override fun onNewsClicked(headlines: NewsHeadlines) {
         parentFragmentManager
@@ -302,5 +305,4 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
             recyclerView.adapter = adapter
         }
     }
-
 }
