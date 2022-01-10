@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.widget.Toolbar
 import com.example.news_app.Models.NewsHeadlines
+import com.example.news_app.Models.NewsHeadlinesStats
 import com.example.news_app.R
 import com.google.common.hash.Hashing
 import com.google.firebase.auth.FirebaseAuth
@@ -30,13 +31,28 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var usersReference: DatabaseReference
     private lateinit var currentUserReference: DatabaseReference
     private lateinit var userBookmarksReference: DatabaseReference
+    private lateinit var userStatsReference: DatabaseReference
     private var user: FirebaseUser? = null
+
+    private lateinit var urlHashCode: String
+
+    private var timeStart: Long = 0
+    private var timeEnd: Long = 0
+    private var timeInDatabase: Long? = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        timeStart = System.currentTimeMillis()
         v = LayoutInflater.from(context).inflate(R.layout.fragment_open_bookmarks_news, container, false)
+        urlHashCode = Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
+
+        initDatabase()
+
+        userStatsReference.child(urlHashCode).child("time").get().addOnCompleteListener {
+            timeInDatabase = it.result.getValue(Long::class.java)
+        }
 
         webView = v.findViewById(R.id.web_view_open_bookmarks_news)
         webView.webViewClient = WebViewClient()
@@ -52,7 +68,6 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             true
         }
 
-        initDatabase()
 
         requireActivity().onBackPressedDispatcher.addCallback{
             requireActivity().supportFragmentManager
@@ -64,6 +79,22 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         return v
     }
 
+    override fun onDestroy() {
+        timeEnd = System.currentTimeMillis()
+        addNewsToStats()
+        super.onDestroy()
+    }
+
+    private fun addNewsToStats() {
+        val userTime = timeEnd - timeStart
+        var time = userTime
+        if (timeInDatabase != null) {
+            time += timeInDatabase!!
+        }
+        val newsStats = NewsHeadlinesStats(headlines, time)
+        userStatsReference.child(urlHashCode).setValue(newsStats)
+    }
+
     private fun initDatabase() {
         auth = FirebaseAuth.getInstance()
         user = auth.currentUser
@@ -72,6 +103,7 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             usersReference = firebaseDatabase.getReference("users")
             currentUserReference = usersReference.child(user!!.uid)
             userBookmarksReference = currentUserReference.child("bookmarks")
+            userStatsReference = currentUserReference.child("stats")
         }
     }
 
@@ -95,5 +127,4 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         }
         startActivity(shareIntent)
     }
-
 }

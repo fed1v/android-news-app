@@ -22,9 +22,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import java.nio.charset.Charset
 
-
 class BookmarksFragment : Fragment(), SelectListener {
-    private lateinit var current_view: View
+    private lateinit var v: View
     private lateinit var adapter: NewsAdapter
     private lateinit var recyclerView: RecyclerView
 
@@ -44,8 +43,7 @@ class BookmarksFragment : Fragment(), SelectListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        current_view =
-            LayoutInflater.from(context).inflate(R.layout.fragment_bookmarks, container, false)
+        v = LayoutInflater.from(context).inflate(R.layout.fragment_bookmarks, container, false)
 
         bookmarks = arrayListOf()
         initDatabase()
@@ -61,12 +59,10 @@ class BookmarksFragment : Fragment(), SelectListener {
                 showNews(bookmarks)
             }
 
-            override fun onCancelled(error: DatabaseError) {
-
-            }
+            override fun onCancelled(error: DatabaseError) {}
         })
 
-        requireActivity().onBackPressedDispatcher.addCallback{
+        requireActivity().onBackPressedDispatcher.addCallback {
             bottomNavigationView.selectedItemId = R.id.newsFragment
             requireActivity().supportFragmentManager
                 .beginTransaction()
@@ -74,21 +70,20 @@ class BookmarksFragment : Fragment(), SelectListener {
                 .commit()
         }
 
-        return current_view
+        return v
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             121 -> {
-                deleteFromBookmarks(item.groupId)  // TODO remove
+                deleteFromBookmarks(item.groupId)
                 return true
             }
-            122 ->{
+            122 -> {
                 shareLink(item.groupId)
                 return true
             }
             else -> return super.onContextItemSelected(item)
-
         }
     }
 
@@ -122,12 +117,12 @@ class BookmarksFragment : Fragment(), SelectListener {
 
     private fun initView() {
         bottomNavigationView = requireActivity().findViewById(R.id.bottom_nav)
-        recyclerView = current_view.findViewById(R.id.bookmarks_recyclerView)
+        recyclerView = v.findViewById(R.id.bookmarks_recyclerView)
         recyclerView.setHasFixedSize(true)
     }
 
     private fun showNews(news: List<NewsHeadlines>) {
-        if(context != null){
+        if (context != null) {
             recyclerView.layoutManager = LinearLayoutManager(context)
             adapter = NewsAdapter(requireContext(), news, this)
             recyclerView.adapter = adapter

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.addCallback
 import com.example.news_app.LoginActivity
 import com.example.news_app.R
 import com.facebook.login.LoginManager
@@ -56,6 +57,14 @@ class SettingsFragment : Fragment() {
             Firebase.auth.signOut()
             val intent = Intent(context, LoginActivity::class.java)
             startActivity(intent)
+        }
+
+
+        requireActivity().onBackPressedDispatcher.addCallback{
+            requireActivity().supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, NewsFragment())
+                .commit()
         }
 
         return current_view

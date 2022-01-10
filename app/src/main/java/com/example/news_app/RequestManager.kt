@@ -16,7 +16,7 @@ import java.lang.NullPointerException
 class RequestManager(
     val context: Context
 ) {
-    val api_key = R.string.api_key
+    val api_key = context.resources.getString(R.string.api_key3)
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl("https://newsapi.org/v2/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -35,7 +35,7 @@ class RequestManager(
             category = category,
             query = query,
             sources = sources,
-            api_key = context.getString(R.string.api_key)
+            api_key = api_key
         )
 
         try {
@@ -75,7 +75,7 @@ class RequestManager(
             query = query,
             sources = sources,
             language = language,
-            api_key = context.getString(R.string.api_key)
+            api_key = api_key
         )
 
         try {

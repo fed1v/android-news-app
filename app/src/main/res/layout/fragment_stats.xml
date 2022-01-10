@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.StatsFragment">
+    tools:context=".Fragments.BookmarksFragment"
+    android:orientation="vertical"
+    >
+    <!--
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+    -->
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:id="@+id/textView_total_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total time:"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/stats_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Stats Fragment" />
+        tools:listitem="@layout/news_in_stats_item"
+        />
 
-</FrameLayout>
+</LinearLayout>

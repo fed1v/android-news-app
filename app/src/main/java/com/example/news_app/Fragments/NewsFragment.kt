@@ -1,5 +1,6 @@
 package com.example.news_app.Fragments
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
@@ -16,12 +17,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app.*
 import com.example.news_app.Models.NewsApiResponse
 import com.example.news_app.Models.NewsHeadlines
+import com.example.news_app.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.common.hash.Hashing
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import java.nio.charset.Charset
 
 
@@ -241,8 +242,12 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                 country_n = which
             }
             .setPositiveButton("Ok") { dialog, which ->
-                if(country_n != 0 && string_sources != null && string_sources != ""){
-                    Toast.makeText(context, "You can't mix Country and Sources, please Reset sources", Toast.LENGTH_SHORT)
+                if (country_n != 0 && string_sources != null && string_sources != "") {
+                    Toast.makeText(
+                        context,
+                        "You can't mix Country and Sources, please Reset sources",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 } else {
                     country_num = country_n
@@ -287,7 +292,11 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                 current_checked_sources = temp_checked_sources
                 changeSources()
                 if (string_sources != null && current_country_pair.second != null) {
-                    Toast.makeText(context, "You can't mix Country and Sources, please set \"Any\" in Country settings", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "You can't mix Country and Sources, please set \"Any\" in Country settings",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 } else {
                     showNewsHeadlines(
