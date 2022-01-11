@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
 import com.example.news_app.R
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.common.hash.Hashing
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -23,6 +24,7 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var v: View
     private lateinit var newsWebView: WebView
     private lateinit var toolbar: Toolbar
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firebaseDatabase: FirebaseDatabase
@@ -32,6 +34,7 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var userStatsReference: DatabaseReference
     private var user: FirebaseUser? = null
 
+    private lateinit var current_category: String
     private lateinit var urlHashCode: String
 
     private var timeStart: Long = 0
@@ -42,19 +45,32 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        v = inflater.inflate(R.layout.fragment_open_news, container, false)
         timeStart = System.currentTimeMillis()
+        initView()
         initDatabase()
+
+
+        if(headlines.category == null || headlines.category == ""){
+            current_category = "other"
+        } else{
+            current_category = headlines.category!!
+        }
 
         urlHashCode = Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
 
-        userStatsReference.child(urlHashCode).child("time").get().addOnCompleteListener {
+        userStatsReference.child(current_category).child(urlHashCode).child("time").get().addOnCompleteListener {
             timeInDatabase = it.result.getValue(Long::class.java)
         }
 
-        v = inflater.inflate(R.layout.fragment_open_news, container, false)
+        return v
+    }
+
+    private fun initView() {
         newsWebView = v.findViewById(R.id.web_view_news)
         newsWebView.webViewClient = WebViewClient()
         newsWebView.loadUrl(headlines.url)
+        bottomNavigationView = requireActivity().findViewById(R.id.bottom_nav)
 
         toolbar = v.findViewById(R.id.toolbar_open_news)
         toolbar.setOnMenuItemClickListener {
@@ -66,13 +82,12 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         }
 
         requireActivity().onBackPressedDispatcher.addCallback {
+            bottomNavigationView.selectedItemId = R.id.newsFragment
             requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, NewsFragment())
                 .commit()
         }
-
-        return v
     }
 
     override fun onDestroy() {
@@ -88,7 +103,7 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             time += timeInDatabase!!
         }
         val newsStats = NewsHeadlinesStats(headlines, time)
-        userStatsReference.child(urlHashCode).setValue(newsStats)
+        userStatsReference.child(current_category).child(urlHashCode).setValue(newsStats)
     }
 
     private fun initDatabase() {

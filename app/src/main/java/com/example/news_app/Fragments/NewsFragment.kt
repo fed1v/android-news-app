@@ -47,7 +47,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
 //    private var headlinesSelected: Boolean = true
 
-    private var current_category: String? = null
+    private lateinit var current_category: String
 
     private var sources: Array<String> = arrayOf("CNN", "TechCrunch", "ABC News")
     private var sources_api: Array<String> = arrayOf("cnn", "techcrunch", "abc-news")
@@ -84,7 +84,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     ): View? {
         current_view =
             LayoutInflater.from(context).inflate(R.layout.fragment_news, container, false)
-        current_category = null
+        current_category = "general"
 //        headlinesSelected = true
 
         initView()
@@ -227,9 +227,10 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private fun addToBookmarks(item: Int) {
         val headline = adapter.headlines[item]
+        headline.category = current_category
         val urlHashCode =
             Hashing.sha1().hashString(headline.url, Charset.defaultCharset()).toString()
-        userBookmarksReference.child(urlHashCode).setValue(headline)
+        userBookmarksReference./*child(current_category!!).*/child(urlHashCode).setValue(headline)
         Toast.makeText(requireContext(), "Bookmark added", Toast.LENGTH_SHORT).show()
     }
 
@@ -349,6 +350,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     }
 
     override fun onNewsClicked(headlines: NewsHeadlines) {
+        headlines.category = current_category
         parentFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, OpenNewsFragment(headlines))

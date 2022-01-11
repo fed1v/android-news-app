@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app.Models.NewsHeadlines
 import com.squareup.picasso.Picasso
+import java.lang.Exception
 
 class NewsAdapter(
     var context: Context,
@@ -26,7 +27,13 @@ class NewsAdapter(
         holder.text_source.setText(headline.source?.name)
         holder.text_description.setText(headline.description)
 
-        val time_string = headline.publishedAt.substring(0..9) + " " + headline.publishedAt.substring(11..18)
+        var time_string: String
+        try{
+            time_string = headline.publishedAt.substring(0..9) + " " + headline.publishedAt.substring(11..18)
+        } catch(e: Exception){
+            e.printStackTrace()
+            time_string = "unknown"
+        }
 
         holder.text_date.setText(time_string)
 

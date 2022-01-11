@@ -14,17 +14,20 @@ import androidx.appcompat.widget.Toolbar
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
 import com.example.news_app.R
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.common.hash.Hashing
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import java.nio.charset.Charset
+import java.util.*
 
 class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var v: View
     private lateinit var toolbar: Toolbar
     private lateinit var webView: WebView
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firebaseDatabase: FirebaseDatabase
@@ -34,6 +37,7 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var userStatsReference: DatabaseReference
     private var user: FirebaseUser? = null
 
+    private lateinit var current_category: String
     private lateinit var urlHashCode: String
 
     private var timeStart: Long = 0
@@ -48,9 +52,17 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         v = LayoutInflater.from(context).inflate(R.layout.fragment_open_bookmarks_news, container, false)
         urlHashCode = Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
 
+        if(headlines.category == null || headlines.category == ""){
+            current_category = "other"
+        } else{
+            current_category = headlines.category!!
+        }
+
+        bottomNavigationView = requireActivity().findViewById(R.id.bottom_nav)
+
         initDatabase()
 
-        userStatsReference.child(urlHashCode).child("time").get().addOnCompleteListener {
+        userStatsReference.child(current_category).child(urlHashCode).child("time").get().addOnCompleteListener {
             timeInDatabase = it.result.getValue(Long::class.java)
         }
 
@@ -70,6 +82,7 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
 
 
         requireActivity().onBackPressedDispatcher.addCallback{
+            bottomNavigationView.selectedItemId = R.id.newsFragment
             requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, BookmarksFragment())
@@ -92,7 +105,7 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             time += timeInDatabase!!
         }
         val newsStats = NewsHeadlinesStats(headlines, time)
-        userStatsReference.child(urlHashCode).setValue(newsStats)
+        userStatsReference.child(current_category).child(urlHashCode).setValue(newsStats)
     }
 
     private fun initDatabase() {

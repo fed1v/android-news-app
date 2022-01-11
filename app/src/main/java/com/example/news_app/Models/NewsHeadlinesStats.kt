@@ -4,13 +4,14 @@ import java.io.Serializable
 
 data class NewsHeadlinesStats(
     var source: Source? = null,
-    var author: String = "",
+    var author: String? = "",
     var title: String = "",
     var description: String = "",
     var url: String = "",
     var urlToImage: String? = "",
     var publishedAt: String = "",
     var content: String? = "",
+    var category: String? = "",
     var time: Long = 0
 ) : Serializable {
     constructor(headlines: NewsHeadlines, time: Long) : this(
@@ -22,6 +23,7 @@ data class NewsHeadlinesStats(
         urlToImage = headlines.urlToImage,
         publishedAt = headlines.publishedAt,
         content = headlines.content,
+        category = headlines.category,
         time = time
     )
 }

@@ -45,14 +45,21 @@ class RequestManager(
                     response: Response<NewsApiResponse>
                 ) {
                     if (!response.isSuccessful) {
-                        Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                        if(response.code() == 429){
+                            Toast.makeText(context, "You made too many requests today. Please try again later", Toast.LENGTH_SHORT).show()
+                        } else if(response.code() == 500){
+                            Toast.makeText(context, "Server error", Toast.LENGTH_SHORT).show()
+                        } else{
+                            Toast.makeText(context, "Error: ${response.errorBody()}", Toast.LENGTH_SHORT).show()
+                        }
+                    } else{
+                        try{
+                            listener.onFetchData(response.body()!!.articles, response.message())
+                        } catch(e: NullPointerException){
+                            e.printStackTrace()
+                        }
                     }
-                    try{
-                        listener.onFetchData(response.body()!!.articles, response.message())
-                    } catch(e: NullPointerException){
-                        Toast.makeText(context, "Exception: $e", Toast.LENGTH_SHORT).show()
-                        e.printStackTrace()
-                    }
+
                 }
 
                 override fun onFailure(call: Call<NewsApiResponse>, t: Throwable) {
@@ -85,13 +92,21 @@ class RequestManager(
                     response: Response<NewsApiResponse>
                 ) {
                     if (!response.isSuccessful) {
-                        Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
-                    }
-                    try{
-                        listener.onFetchData(response.body()!!.articles, response.message())
-                    } catch(e: NullPointerException){
-                        Toast.makeText(context, "Exception: $e", Toast.LENGTH_SHORT).show()
-                        e.printStackTrace()
+                        if(response.code() == 400){
+                            Toast.makeText(context, "Please specify Sources or Language or Keywords", Toast.LENGTH_SHORT).show()
+                        } else if(response.code() == 429){
+                            Toast.makeText(context, "You made too many requests today. Please try again later", Toast.LENGTH_SHORT).show()
+                        } else if(response.code() == 500){
+                            Toast.makeText(context, "Server error", Toast.LENGTH_SHORT).show()
+                        } else{
+                            Toast.makeText(context, "Error: ${response.errorBody()}", Toast.LENGTH_SHORT).show()
+                        }
+                    } else{
+                        try{
+                            listener.onFetchData(response.body()!!.articles, response.message())
+                        } catch(e: NullPointerException){
+                            e.printStackTrace()
+                        }
                     }
                 }
 
