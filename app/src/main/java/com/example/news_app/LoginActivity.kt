@@ -61,6 +61,11 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
+    override fun onBackPressed() {
+        finishAffinity()
+        finish()
+    }
+
     private fun initView() {
         buttonToMainActivity = findViewById(R.id.button_to_mainActivity)
         buttonToMainActivity.setOnClickListener {

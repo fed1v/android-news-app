@@ -5,16 +5,22 @@
       <map>
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/drawable/ic_notification.xml" value="0.19739583333333333" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/activity_details.xml" value="0.161231884057971" />
-        <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/activity_login.xml" value="0.24547101449275363" />
+        <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/activity_login.xml" value="0.23354564755838642" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/activity_main.xml" value="0.1796875" />
+        <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/activity_on_boarding.xml" value="0.15" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/custom_spinner_item.xml" value="0.16770833333333332" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_bookmarks.xml" value="0.33" />
+        <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_first_screen.xml" value="0.25" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_news.xml" value="0.25" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_news_everything.xml" value="0.33" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_open_bookmarks_news.xml" value="0.1796875" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_open_news.xml" value="0.1796875" />
+        <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_second_screen.xml" value="0.17" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_settings.xml" value="0.25" />
+        <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_splash.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_stats.xml" value="0.25" />
+        <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_third_screen.xml" value="0.13697916666666668" />
+        <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/fragment_view_pager.xml" value="0.12007168458781362" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/news_in_stats_item.xml" value="0.24322916666666666" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/layout/news_item.xml" value="0.24322916666666666" />
         <entry key="..\:/Users/Ivan/AndroidStudioProjects/NewsApp/app/src/main/res/menu/bottom_menu.xml" value="0.24114583333333334" />
