@@ -29,6 +29,29 @@
         android:text="email: "
         />
 
+    <Button
+        android:id="@+id/btn_language"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Language for sources"
+        android:textColor="@color/black"
+        />
+
+    <Button
+        android:id="@+id/btn_country"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Country for sources"
+        android:textColor="@color/black"
+        />
+
+    <Button
+        android:id="@+id/btn_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Category for sources"
+        android:textColor="@color/black"
+        />
 
     <Button
         android:id="@+id/btn_logout"

@@ -1,7 +1,9 @@
 package com.example.news_app.Fragments
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.TextUtils
 import androidx.fragment.app.Fragment
@@ -15,6 +17,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app.*
+import com.example.news_app.BuildConfig
 import com.example.news_app.Models.NewsApiResponse
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.R
@@ -32,7 +35,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private val options: Array<String> = arrayOf("Country", "Sources")
 
-    private val countriesMap = mapOf(
+    private val countriesMap = mapOf(  //TODO
         "Any" to null,
         "Argentina" to "ar",
         "Australia" to "au",
@@ -126,6 +129,8 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     private lateinit var toolbar: Toolbar
     private lateinit var spinner: Spinner
 
+    private var userPreferences: SharedPreferences? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -135,11 +140,24 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         current_category = "general"
 //        headlinesSelected = true
 
+    //    Toast.makeText(context, BuildConfig.DEBUG.toString(), Toast.LENGTH_SHORT).show()  //TODO for task1
+    //    println("---------------------- ${BuildConfig.DEBUG}") // TODO for task1
+
         initView()
         initDatabase()
+
+        getUserSettings()
+
         showNewsHeadlines()
 
         return current_view
+    }
+
+    private fun getUserSettings() {
+        userPreferences = context?.getSharedPreferences("User settings", Context.MODE_PRIVATE)
+        val user_country = userPreferences?.getString("User country", "us")?: "us"
+        country_num = countriesMap.keys.indexOf(user_country)
+        changeCurrentCountry()
     }
 
     private fun initView() {

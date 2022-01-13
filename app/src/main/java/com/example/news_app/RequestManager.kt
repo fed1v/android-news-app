@@ -120,6 +120,16 @@ class RequestManager(
         }
     }
 
+    /*fun getSources(
+        listener: OnFetchDataListener<NewsApiResponse>,
+        category: String?,
+        query: String?,
+        sources: String?,
+        country: String?
+    ) {
+
+    }*/
+
     interface CallNewsApi {
         @GET("top-headlines")
         fun callHeadlines(
@@ -137,5 +147,13 @@ class RequestManager(
             @Query("language") language: String?,
             @Query("apiKey") api_key: String?,
         ): Call<NewsApiResponse>
+
+        /*@GET("top-headlines/sources")
+        fun callSources(
+            @Query("category") category: String?,
+            @Query("language") language: String?,
+            @Query("country") country: String?,
+            @Query("apiKey") api_key: String?
+        )*/
     }
 }

@@ -17,8 +17,7 @@ import com.example.news_app.Models.NewsHeadlines
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -42,6 +41,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var alarmManager: AlarmManager
     private lateinit var pendingIntent: PendingIntent
 
+    private var userCountry = mutableListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -52,6 +53,9 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel()
         setCalendar()
 
+        saveUserSettingsToSharedPreferences()
+
+
         if(user == null) {
             startActivity(Intent(this, LoginActivity::class.java))
             return
@@ -59,11 +63,42 @@ class MainActivity : AppCompatActivity() {
 
         showNewsInNotifications()
 
+
         if(showHeadlines){
             openFragment(NewsFragment())
         } else{
             openFragment(NewsEverythingFragment())
         }
+    }
+
+    private fun saveUserSettingsToSharedPreferences() {
+        val pref = getSharedPreferences("User settings", MODE_PRIVATE)
+        val editor = pref.edit()
+        currentUserReference.child("country").addValueEventListener(object: ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val country = snapshot.getValue(String::class.java)?: "us"
+                editor.putString("User country", country)
+                editor.apply()
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        currentUserReference.child("language").addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val language = snapshot.getValue(String::class.java)?: "en"
+                editor.putString("User language", language)
+                editor.apply()
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+        currentUserReference.child("category").addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val category = snapshot.getValue(String::class.java)?: "general"
+                editor.putString("User category", category)
+                editor.apply()
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 
     private fun showNewsInNotifications() {

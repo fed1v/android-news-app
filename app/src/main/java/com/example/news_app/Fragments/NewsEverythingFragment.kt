@@ -1,6 +1,8 @@
 package com.example.news_app.Fragments
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.TextUtils
 import androidx.fragment.app.Fragment
@@ -33,10 +35,21 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
 
     private val languagesMap = mapOf(
         "Any" to null,
+        "Arabic" to "ar",
+        "Chinese" to "zh",
+        "Dutch" to "nl",
         "English" to "en",
+        "French" to "fr",
+        "German" to "de",
+        "Hebrew" to "he",
+        "Italian" to "it",
+        "Norwegian" to "no",
+        "Portuguese" to "pt",
         "Russian" to "ru",
-        "French" to "fr"
+        "Sami" to "se",
+        "Spanish" to "es",
     )
+
     private var current_language_pair: Pair<String, String?> = ("English" to "en")
     private var language_num: Int = 1
 
@@ -63,6 +76,9 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
     private lateinit var toolbar: Toolbar
     private lateinit var spinner: Spinner
 
+    private var userPreferences: SharedPreferences? = null
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -74,6 +90,8 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
         initView()
         initDatabase()
 
+        getUserSettings()
+
         showNewsEverything(
             query = null,
             sources = string_sources,
@@ -81,6 +99,13 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
         )
 
         return current_view
+    }
+
+    private fun getUserSettings() {
+        userPreferences = context?.getSharedPreferences("User settings", Context.MODE_PRIVATE)
+        val user_languages = userPreferences?.getString("User language", "en")?: "en"
+        language_num = languagesMap.keys.indexOf(user_languages)
+        changeCurrentLanguage()
     }
 
     private fun initView() {

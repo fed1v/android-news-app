@@ -70,31 +70,35 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         initView()
 
         getTotalTime()
+        showTime()
+
         getAllNews()
-          // TODO async
+        // TODO async
 
 
         return v
     }
 
     private fun getTotalTime() {
-        userStatsReference.addValueEventListener(object : ValueEventListener {
+        userStatsReference.child("total time").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                for (dataSnapshot in snapshot.children) {
-                    if (dataSnapshot.value is Long) {
-                        totalTime = dataSnapshot.getValue(Long::class.java) ?: 0
-                        break
-                    }
-                }
+                totalTime = snapshot.getValue(Long::class.java) ?: 0
             }
-
             override fun onCancelled(error: DatabaseError) {}
         })
     }
 
-    private fun getAllNews(){
-        stats = arrayListOf<NewsHeadlinesStats>()
-        for (category in listOf("business", "entertainment", "general", "health", "science", "sports", "technology", "other")) {
+    private fun getAllNews() {
+        for (category in listOf(
+            "business",
+            "entertainment",
+            "general",
+            "health",
+            "science",
+            "sports",
+            "technology",
+            "other"
+        )) {
             setCategoryListener(category, false)
         }
         stats.clear()
@@ -104,22 +108,18 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     private fun setCategoryListener(category: String, clearStats: Boolean = true) {
         var cat: String = if (category == "") "other" else category
 
-        userStatsReference.child(cat).addValueEventListener(object : ValueEventListener {
+        userStatsReference.child(cat).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(clearStats){
+                if (clearStats) {
                     stats.clear()
                 }
                 for (dataSnapshot in snapshot.children) {
-                    if (dataSnapshot.value is Long) {
-                        totalTime = dataSnapshot.getValue(Long::class.java) ?: 0
-                    } else {
-                        val headline = dataSnapshot.getValue(NewsHeadlinesStats::class.java)
-                        stats.add(headline!!)
-                    }
+                    val headline = dataSnapshot.getValue(NewsHeadlinesStats::class.java)
+                    stats.add(headline!!)
                 }
-                showNews(stats, totalTime)
+                getTotalTime()
+                showNews(stats)
             }
-
             override fun onCancelled(error: DatabaseError) {}
         })
     }
@@ -178,15 +178,12 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         btn_technology = v.findViewById(R.id.btn_technology)
 
         btn_all.setOnClickListener {
-            println("btn_all")
             getAllNews()
         }
         btn_business.setOnClickListener {
-            println("btn_business")
             setCategoryListener("business")
         }
         btn_entertainment.setOnClickListener {
-            println("btn_entertainment")
             setCategoryListener("entertainment")
         }
         btn_general.setOnClickListener {
@@ -222,16 +219,20 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         }
     }
 
-    private fun showNews(news: List<NewsHeadlinesStats>, totalTime: Long) {
+    private fun showNews(news: List<NewsHeadlinesStats>) {
         if (context != null) {
             recyclerView.layoutManager = LinearLayoutManager(context)
             adapter = NewsInStatsAdapter(requireContext(), news, this)
             recyclerView.adapter = adapter
-            val string_total_time: String =
-                DurationFormatUtils.formatDuration(totalTime, "HH:mm:ss", true)
-            val time = "Total time: $string_total_time"
-            textView_total_time.text = time
+            showTime()
         }
+    }
+
+    private fun showTime() {
+        val string_total_time: String =
+            DurationFormatUtils.formatDuration(totalTime, "HH:mm:ss", true)
+        val time = "Total time: $string_total_time"
+        textView_total_time.text = time
     }
 
     override fun onNewsClicked(headlines: NewsHeadlinesStats) { // TODO category doesnt work
