@@ -154,9 +154,10 @@ class LoginActivity : AppCompatActivity() {
             firebaseDatabase = FirebaseDatabase.getInstance()
             usersReference = firebaseDatabase.getReference("users")
             currentUserReference = usersReference.child(user.uid)
+            val profile = GoogleSignIn.getLastSignedInAccount(this)
             val userMap = mapOf(
-                "email" to user.email,
-                "name" to user.displayName,
+                "email" to (user.email?: profile?.email),
+                "name" to (user.displayName?: profile?.displayName),
             )
             currentUserReference.updateChildren(userMap)
             userBookmarksReference = currentUserReference.child("bookmarks")

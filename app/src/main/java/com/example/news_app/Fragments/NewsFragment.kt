@@ -35,7 +35,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private val options: Array<String> = arrayOf("Country", "Sources")
 
-    private val countriesMap = mapOf(  //TODO
+    private val countriesMap = mapOf(
         "Any" to null,
         "Argentina" to "ar",
         "Australia" to "au",
@@ -193,17 +193,27 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         userPreferences = context?.getSharedPreferences("User settings", Context.MODE_PRIVATE)
 
         val user_country = userPreferences?.getString("User country", null)
-        default_country = countriesMap[user_country]
-        country_num = countriesMap.keys.indexOf(user_country)
+        if (user_country == null) {
+            default_country = null
+            country_num = 0
+        } else {
+            default_country = countriesMap[user_country]
+            country_num = countriesMap.keys.indexOf(user_country)
+        }
+
         changeCurrentCountry()
 
-        default_category = userPreferences?.getString("User category",/* "general"*/null)// ?: "general"
+        default_category = userPreferences?.getString("User category", null)
         if (default_category == "Any") {
             default_category = null
         }
 
         val user_language = userPreferences?.getString("User language", null)
-        default_language = languagesMap[user_language]
+        if (user_language == null) {
+            default_language = null
+        } else {
+            default_language = languagesMap[user_language]
+        }
     }
 
     private fun initView() {
@@ -448,7 +458,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         val sourceIdsArray = sourcesMap.values.toTypedArray()
         for (i in current_checked_sources.indices) {
             if (current_checked_sources[i]) {
-                result_sources_list.add(sourceIdsArray[i]?:"")
+                result_sources_list.add(sourceIdsArray[i] ?: "")
             }
         }
         string_sources = TextUtils.join(",", result_sources_list)
@@ -481,14 +491,18 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         object : OnFetchDataListener<NewsApiResponse> {
             override fun onFetchData(newsHeadlinesList: List<NewsHeadlines>, message: String) {
                 if (newsHeadlinesList.isEmpty()) {
-                    Toast.makeText(requireContext(), "Nothing found", Toast.LENGTH_SHORT).show()
+                    if (context != null) {
+                        Toast.makeText(context, "Nothing found", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     showNews(newsHeadlinesList)
                 }
             }
 
             override fun onError(message: String) {
-                Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
+                if (context != null) {
+                    Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -496,15 +510,19 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         object : OnFetchSourcesListener<SourcesApiResponse> {
             override fun onFetchSources(sourcesList: List<Source>, message: String) {
                 if (sourcesList.isEmpty()) {
-                    Toast.makeText(requireContext(), "Sources not found", Toast.LENGTH_SHORT).show()
+                    if (context != null) {
+                        Toast.makeText(context, "Sources not found", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     sources_list.addAll(sourcesList)
-                    current_checked_sources = BooleanArray(sources_list.size) //
+                    current_checked_sources = BooleanArray(sources_list.size)
                 }
             }
 
             override fun onError(message: String) {
-                Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
+                if (context != null) {
+                    Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 

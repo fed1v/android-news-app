@@ -18,12 +18,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app.*
 import com.example.news_app.Models.NewsApiResponse
 import com.example.news_app.Models.NewsHeadlines
+import com.example.news_app.Models.Source
+import com.example.news_app.Models.SourcesApiResponse
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.common.hash.Hashing
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import org.checkerframework.checker.units.qual.s
 import java.nio.charset.Charset
 
 class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener*/ {
@@ -32,6 +35,64 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
     private lateinit var adapter: NewsAdapter
 
     private val options: Array<String> = arrayOf("Language", "Sources")
+
+    private val countriesMap = mapOf(
+        "Any" to null,
+        "Argentina" to "ar",
+        "Australia" to "au",
+        "Austria" to "at",
+        "Belgium" to "be",
+        "Brazil" to "br",
+        "Bulgaria" to "bg",
+        "Canada" to "ca",
+        "China" to "cn",
+        "Colombia" to "co",
+        "Cuba" to "cu",
+        "Czechia" to "cz",
+        "Egypt" to "eg",
+        "France" to "fr",
+        "Germany" to "de",
+        "Greece" to "gr",
+        "Honk Kong" to "hk",
+        "Hungary" to "hu",
+        "Indonesia" to "id",
+        "Ireland" to "ie",
+        "Israel" to "il",
+        "India" to "in",
+        "Italy" to "it",
+        "Japan" to "jp",
+        "Korea" to "kr",
+        "Latvia" to "lv",
+        "Lithuania" to "lt",
+        "Morocco" to "ma",
+        "Mexico" to "mx",
+        "Malaysia" to "my",
+        "Nigeria" to "ng",
+        "Netherlands" to "nl",
+        "Norway" to "no",
+        "New Zealand" to "nz",
+        "Philippines" to "ph",
+        "Poland" to "pl",
+        "Portugal" to "pt",
+        "Romania" to "ro",
+        "Russia" to "ru",
+        "Serbia" to "rs",
+        "Saudi Arabia" to "sa",
+        "Sweden" to "se",
+        "Singapore" to "sg",
+        "Slovenia" to "si",
+        "Slovakia" to "sk",
+        "South Africa" to "za",
+        "Switzerland" to "ch",
+        "Thailand" to "th",
+        "Turkey" to "tr",
+        "Taiwan" to "tw",
+        "Ukraine" to "ua",
+        "United Arab Emirates" to "ae",
+        "United Kingdom of Great Britain and Northern Ireland" to "gb",
+        "USA" to "us",
+        "Venezuela" to "ve"
+    )
 
     private val languagesMap = mapOf(
         "Any" to null,
@@ -53,11 +114,10 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
     private var current_language_pair: Pair<String, String?> = ("English" to "en")
     private var language_num: Int = 1
 
-//    private var headlinesSelected: Boolean = true
 
-    private var sources: Array<String> = arrayOf("CNN", "TechCrunch", "ABC News")
-    private var sources_api: Array<String> = arrayOf("cnn", "techcrunch", "abc-news")
-    private var current_checked_sources: BooleanArray = booleanArrayOf(false, false, false)
+    private var sources_list: MutableList<Source> = mutableListOf<Source>()
+    private lateinit var sourcesMap: MutableMap<String, String?>
+    private var current_checked_sources: BooleanArray = booleanArrayOf()
     private var string_sources: String? = null
 
     private lateinit var btn_options: ImageButton
@@ -78,6 +138,10 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
 
     private var userPreferences: SharedPreferences? = null
 
+    private var default_category: String? = null
+    private var default_language: String? = null
+    private var default_country: String? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,6 +156,12 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
 
         getUserSettings()
 
+        getSources(
+            category = default_category,
+            language = default_language,
+            country = default_country
+        )
+
         showNewsEverything(
             query = null,
             sources = string_sources,
@@ -101,11 +171,46 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
         return current_view
     }
 
+    private fun getSources(
+        category: String? = null,
+        language: String? = null,
+        country: String? = null
+    ) {
+        val manager = RequestManager(requireContext())
+        manager.getSources(
+            listener = sources_listener,
+            category = category,
+            language = language,
+            country = country
+        )
+    }
+
     private fun getUserSettings() {
         userPreferences = context?.getSharedPreferences("User settings", Context.MODE_PRIVATE)
-        val user_languages = userPreferences?.getString("User language", "en")?: "en"
-        language_num = languagesMap.keys.indexOf(user_languages)
+
+        val user_language = userPreferences?.getString("User language", null)
+        if (user_language == null) {
+            default_language = null
+            language_num = 0
+        } else {
+            default_language = languagesMap[user_language]
+            language_num = languagesMap.keys.indexOf(user_language)
+        }
+
         changeCurrentLanguage()
+
+        default_category = userPreferences?.getString("User category", null)
+        if (default_category == "Any") {
+            default_category = null
+        }
+
+        val user_country = userPreferences?.getString("User country", null)
+        if (user_country == null) {
+            default_country = null
+        } else {
+            default_country = countriesMap[user_country]
+        }
+
     }
 
     private fun initView() {
@@ -254,14 +359,22 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
 
 
     fun openSourceSettings() {
-        val temp_checled_sources = current_checked_sources
+        sourcesMap = mutableMapOf()
+        sources_list.forEach { sourcesMap += Pair(it.name, it.id) }
+
+        val temp_checked_sources = current_checked_sources.copyOf()
+        val prev_checked_sources = current_checked_sources.copyOf()
+
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Source")
-            .setMultiChoiceItems(sources, current_checked_sources) { dialog, which, isChecked ->
-                temp_checled_sources[which] = isChecked
+            .setMultiChoiceItems(
+                sourcesMap.keys.toTypedArray(),
+                current_checked_sources
+            ) { dialog, which, isChecked ->
+                temp_checked_sources[which] = isChecked
             }
             .setPositiveButton("Ok") { dialog, which ->
-                current_checked_sources = temp_checled_sources
+                current_checked_sources = temp_checked_sources.copyOf()
                 changeSources()
 
                 showNewsEverything(
@@ -288,10 +401,12 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
     }
 
     fun changeSources() {
+        string_sources = ""
         val result_sources_list = arrayListOf<String>()
-        for (i in 0..2) {
+        val sourceIdsArray = sourcesMap.values.toTypedArray()
+        for (i in current_checked_sources.indices) {
             if (current_checked_sources[i]) {
-                result_sources_list.add(sources_api[i])
+                result_sources_list.add(sourceIdsArray[i] ?: "")
             }
         }
         string_sources = TextUtils.join(",", result_sources_list)
@@ -310,14 +425,39 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
         object : OnFetchDataListener<NewsApiResponse> {
             override fun onFetchData(newsHeadlinesList: List<NewsHeadlines>, message: String) {
                 if (newsHeadlinesList.isEmpty()) {
-                    Toast.makeText(requireContext(), "Nothing found", Toast.LENGTH_SHORT).show()
+                    if (context != null) {
+                        Toast.makeText(context, "Nothing found", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     showNews(newsHeadlinesList)
                 }
             }
 
             override fun onError(message: String) {
-                Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
+                if (context != null) {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+        }
+
+    private val sources_listener: OnFetchSourcesListener<SourcesApiResponse> =
+        object : OnFetchSourcesListener<SourcesApiResponse> {
+            override fun onFetchSources(sourcesList: List<Source>, message: String) {
+                if (sourcesList.isEmpty()) {
+                    if (context != null) {
+                        Toast.makeText(context, "Sources not found", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    sources_list.addAll(sourcesList)
+                    current_checked_sources = BooleanArray(sources_list.size)
+                }
+            }
+
+            override fun onError(message: String) {
+                if (context != null) {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 

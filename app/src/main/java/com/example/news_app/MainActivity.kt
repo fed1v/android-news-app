@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         val editor = pref.edit()
         currentUserReference.child("country").addValueEventListener(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                val country = snapshot.getValue(String::class.java)?: "us"
+                val country = snapshot.getValue(String::class.java)
                 editor.putString("User country", country)
                 editor.apply()
             }
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 
         currentUserReference.child("language").addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                val language = snapshot.getValue(String::class.java)?: "en"
+                val language = snapshot.getValue(String::class.java)
                 editor.putString("User language", language)
                 editor.apply()
             }
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         })
         currentUserReference.child("category").addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                val category = snapshot.getValue(String::class.java)?: "general"
+                val category = snapshot.getValue(String::class.java)
                 editor.putString("User category", category)
                 editor.apply()
             }
