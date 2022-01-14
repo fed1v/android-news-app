@@ -3,25 +3,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.BookmarksFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    >
+    tools:context=".Fragments.StatsFragment">
     <!--
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
     -->
-
-    <TextView
-        android:id="@+id/textView_total_time"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Total time:"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:textColor="@color/black"
-        />
+        android:orientation="horizontal"
+        >
+
+
+        <TextView
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/textView_total_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Total time:"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/btn_sources"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sources"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -123,7 +142,6 @@
         android:id="@+id/stats_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/news_in_stats_item"
-        />
+        tools:listitem="@layout/news_in_stats_item" />
 
 </LinearLayout>

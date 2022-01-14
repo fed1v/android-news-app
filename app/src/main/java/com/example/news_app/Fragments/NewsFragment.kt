@@ -443,6 +443,9 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
             .setNegativeButton("Cancel") { dialog, which ->
                 current_checked_sources = prev_checked_sources.copyOf()
             }
+            .setOnCancelListener {
+                current_checked_sources = prev_checked_sources.copyOf()
+            }
             .show()
     }
 

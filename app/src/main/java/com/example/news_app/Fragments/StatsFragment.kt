@@ -15,10 +15,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
+import com.example.news_app.Models.Source
 import com.example.news_app.NewsInStatsAdapter
 import com.example.news_app.R
 import com.example.news_app.SelectInStatsListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.common.hash.Hashing
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -26,7 +28,9 @@ import com.google.firebase.database.*
 import kotlinx.coroutines.*
 import org.apache.commons.lang3.time.DurationFormatUtils
 import java.nio.charset.Charset
+import java.util.*
 import java.util.concurrent.CountDownLatch
+import kotlin.collections.ArrayList
 
 class StatsFragment : Fragment(), SelectInStatsListener {
     private lateinit var v: View
@@ -45,6 +49,16 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     private var totalTime: Long = 0
     private lateinit var bottomNavigationView: BottomNavigationView
 
+    val categories = listOf(
+        "business",
+        "entertainment",
+        "general",
+        "health",
+        "science",
+        "sports",
+        "technology",
+        "other"
+    )
     private lateinit var current_category: String
 
     private lateinit var btn_all: Button
@@ -56,6 +70,12 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     private lateinit var btn_science: Button
     private lateinit var btn_sports: Button
     private lateinit var btn_technology: Button
+    private lateinit var btn_sources: Button
+
+    private var current_checked_sources: BooleanArray = booleanArrayOf()
+    private lateinit var sourcesSet: MutableSet<Source>
+    private lateinit var sourcesMap: MutableMap<String, String?>
+    private var allNewsList = mutableListOf<NewsHeadlinesStats>()
 
 
     override fun onCreateView(
@@ -71,6 +91,8 @@ class StatsFragment : Fragment(), SelectInStatsListener {
 
         getTotalTime()
         showTime()
+
+        sourcesSet = mutableSetOf()
 
         getAllNews()
         // TODO async
@@ -89,21 +111,11 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     }
 
     private fun getAllNews() {
-        for (category in listOf(
-            "business",
-            "entertainment",
-            "general",
-            "health",
-            "science",
-            "sports",
-            "technology",
-            "other"
-        )) {
+        for (category in categories) {
             setCategoryListener(category, false)
         }
         stats.clear()
     }
-
 
     private fun setCategoryListener(category: String, clearStats: Boolean = true) {
         var cat: String = if (category == "") "other" else category
@@ -116,6 +128,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
                 for (dataSnapshot in snapshot.children) {
                     val headline = dataSnapshot.getValue(NewsHeadlinesStats::class.java)
                     stats.add(headline!!)
+                    sourcesSet.add(headline.source!!)
                 }
                 getTotalTime()
                 showNews(stats)
@@ -176,6 +189,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         btn_science = v.findViewById(R.id.btn_science)
         btn_sports = v.findViewById(R.id.btn_sports)
         btn_technology = v.findViewById(R.id.btn_technology)
+        btn_sources = v.findViewById(R.id.btn_sources)
 
         btn_all.setOnClickListener {
             getAllNews()
@@ -204,6 +218,9 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         btn_technology.setOnClickListener {
             setCategoryListener("technology")
         }
+        btn_sources.setOnClickListener {
+            openSourceSettings()
+        }
 
         textView_total_time = v.findViewById(R.id.textView_total_time)
         bottomNavigationView = requireActivity().findViewById(R.id.bottom_nav)
@@ -217,6 +234,84 @@ class StatsFragment : Fragment(), SelectInStatsListener {
                 .replace(R.id.fragment_container, NewsFragment())
                 .commit()
         }
+    }
+
+    private fun openSourceSettings() {
+        sourcesMap = mutableMapOf()
+        if(current_checked_sources.size != sourcesSet.size){
+            current_checked_sources = BooleanArray(sourcesSet.size)
+        }
+
+        sourcesSet = sourcesSet.sortedBy { it.name }.toMutableSet()
+        sourcesSet.forEach { sourcesMap += Pair(it.name, it.id) }
+
+        val temp_checked_sources = current_checked_sources.copyOf()
+        val prev_checked_sources = current_checked_sources.copyOf()
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Source")
+            .setMultiChoiceItems(
+                sourcesMap.keys.toTypedArray(),
+                current_checked_sources,
+            ) { dialog, which, isChecked ->
+                temp_checked_sources[which] = isChecked
+            }
+            .setPositiveButton("Ok") { dialog, which ->
+                current_checked_sources = temp_checked_sources.copyOf()
+                val selectedSources = getSelectedSources()
+                getStatsWithSelectedSources(selectedSources)
+            }
+            .setNegativeButton("Cancel"){ dialog, which ->
+                current_checked_sources = prev_checked_sources.copyOf()
+            }
+            .setNeutralButton("Reset"){dialog, which ->
+                resetSources()
+            }
+            .setOnCancelListener {
+                current_checked_sources = prev_checked_sources.copyOf()
+            }
+            .show()
+    }
+
+    private fun resetSources() {
+        for(i in current_checked_sources.indices) {
+            current_checked_sources[i] = false
+        }
+    }
+
+    private fun getSelectedSources(): List<Source> {
+        val selectedSources = mutableListOf<Source>()
+        val sourcesNamesArray = sourcesMap.keys.toTypedArray()
+        val sourcesIdsArray = sourcesMap.values.toTypedArray()
+
+        for(i in sourcesNamesArray.indices){
+            if(current_checked_sources[i]){
+                selectedSources.add(Source(name = sourcesNamesArray[i], id = sourcesIdsArray[i]))
+            }
+        }
+
+        return selectedSources
+    }
+
+    private fun getStatsWithSelectedSources(selectedSources: List<Source>){
+        val resultList = mutableListOf<NewsHeadlinesStats>()
+        val selectedSourcesNames = mutableListOf<String>()
+        val selectedSourcesIds = mutableListOf<String?>()
+        selectedSources.forEach{
+            selectedSourcesIds.add(it.id)
+            selectedSourcesNames.add(it.name)
+        }
+//        println(stats)
+        for(news in stats){
+            val id = news.source?.id
+            val name = news.source?.name
+            if(id != null && id != "" && selectedSourcesIds.contains(id)){
+                resultList.add(news)
+            } else if(name != null && name != "" && selectedSourcesNames.contains(name)){
+                resultList.add(news)
+            }
+        }
+        showNews(resultList)
     }
 
     private fun showNews(news: List<NewsHeadlinesStats>) {

@@ -388,8 +388,10 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
                 for (i in current_checked_sources.indices) current_checked_sources[i] = false
             }
             .setNegativeButton("Cancel") { dialog, which ->
-                println("Cancel $which")  // TODO cancel
-
+                current_checked_sources = prev_checked_sources.copyOf()
+            }
+            .setOnCancelListener {
+                current_checked_sources = prev_checked_sources.copyOf()
             }
             .show()
     }

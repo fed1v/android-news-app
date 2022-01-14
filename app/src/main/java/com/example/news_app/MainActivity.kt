@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         saveUserSettingsToSharedPreferences()
 
 
+        println(user)
         if(user == null) {
             startActivity(Intent(this, LoginActivity::class.java))
             return
@@ -181,7 +182,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setCalendar(){
         calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 18)
+        calendar.set(Calendar.HOUR_OF_DAY, 17)
         calendar.set(Calendar.MINUTE, 49)
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
