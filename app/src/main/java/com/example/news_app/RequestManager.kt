@@ -3,6 +3,7 @@ package com.example.news_app
 import android.content.Context
 import android.widget.Toast
 import com.example.news_app.Models.NewsApiResponse
+import com.example.news_app.Models.SourcesApiResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,7 +17,7 @@ import java.lang.NullPointerException
 class RequestManager(
     val context: Context
 ) {
-    val api_key = context.resources.getString(R.string.api_key3)
+    val api_key = context.resources.getString(R.string.api_key2)
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl("https://newsapi.org/v2/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -120,15 +121,52 @@ class RequestManager(
         }
     }
 
-    /*fun getSources(
-        listener: OnFetchDataListener<NewsApiResponse>,
+    fun getSources(
+        listener: OnFetchSourcesListener<SourcesApiResponse>,
         category: String?,
-        query: String?,
-        sources: String?,
+        language: String?,
         country: String?
     ) {
+        val callNewsApi: CallNewsApi = retrofit.create(CallNewsApi::class.java)
+        val call: Call<SourcesApiResponse> = callNewsApi.callSources(
+            category = category,
+            language = language,
+            country = country,
+            api_key = api_key
+        )
 
-    }*/
+        try {
+            call.enqueue(object : Callback<SourcesApiResponse> {
+                override fun onResponse(
+                    call: Call<SourcesApiResponse>,
+                    response: Response<SourcesApiResponse>
+                ) {
+                    if (!response.isSuccessful) {
+                        if(response.code() == 400){
+                            Toast.makeText(context, "Bad Request", Toast.LENGTH_SHORT).show()
+                        } else if(response.code() == 429){
+                            Toast.makeText(context, "You made too many requests today. Please try again later", Toast.LENGTH_SHORT).show()
+                        } else if(response.code() == 500){
+                            Toast.makeText(context, "Server error", Toast.LENGTH_SHORT).show()
+                        } else{
+                            Toast.makeText(context, "Error: ${response.errorBody()}", Toast.LENGTH_SHORT).show()
+                        }
+                    } else{
+                        try{
+                            listener.onFetchSources(response.body()!!.sources, response.message())
+                        } catch(e: NullPointerException){
+                            e.printStackTrace()
+                        }
+                    }
+                }
+                override fun onFailure(call: Call<SourcesApiResponse>, t: Throwable) {
+                    listener.onError("Request failed")
+                }
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     interface CallNewsApi {
         @GET("top-headlines")
@@ -148,12 +186,12 @@ class RequestManager(
             @Query("apiKey") api_key: String?,
         ): Call<NewsApiResponse>
 
-        /*@GET("top-headlines/sources")
+        @GET("top-headlines/sources")
         fun callSources(
             @Query("category") category: String?,
             @Query("language") language: String?,
             @Query("country") country: String?,
             @Query("apiKey") api_key: String?
-        )*/
+        ): Call<SourcesApiResponse>
     }
 }

@@ -18,6 +18,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -123,7 +124,7 @@ class SettingsFragment : Fragment() {
     )
     private var language_num = 0
 
-    private val categories = arrayOf("Business", "Entertainment", "General", "Health", "Science", "Sports", "Technology")
+    private val categories = arrayOf("Any", "Business", "Entertainment", "General", "Health", "Science", "Sports", "Technology")
     private var category_num = 2
 
     private lateinit var user_language: String
@@ -132,6 +133,8 @@ class SettingsFragment : Fragment() {
 
     private var userPreferences: SharedPreferences? = null
     private var editor: SharedPreferences.Editor? = null
+
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -172,6 +175,7 @@ class SettingsFragment : Fragment() {
     private fun initView() {
         text_user_email = v.findViewById(R.id.text_user_email)
         text_user_name = v.findViewById(R.id.text_user_name)
+        bottomNavigationView = requireActivity().findViewById(R.id.bottom_nav)
 
         googleSignInAccount = GoogleSignIn.getLastSignedInAccount(requireContext())
         if (googleSignInAccount != null) {
@@ -210,6 +214,7 @@ class SettingsFragment : Fragment() {
         }
 
         requireActivity().onBackPressedDispatcher.addCallback {
+            bottomNavigationView.selectedItemId = R.id.newsFragment
             requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, NewsFragment())

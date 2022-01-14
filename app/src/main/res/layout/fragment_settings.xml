@@ -33,7 +33,7 @@
         android:id="@+id/btn_language"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Language for sources"
+        android:text="Default language"
         android:textColor="@color/black"
         />
 
@@ -41,7 +41,7 @@
         android:id="@+id/btn_country"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Country for sources"
+        android:text="Default country"
         android:textColor="@color/black"
         />
 
@@ -49,7 +49,7 @@
         android:id="@+id/btn_category"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Category for sources"
+        android:text="Default category"
         android:textColor="@color/black"
         />
 

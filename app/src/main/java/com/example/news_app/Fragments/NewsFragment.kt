@@ -1,6 +1,5 @@
 package com.example.news_app.Fragments
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -17,9 +16,10 @@ import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app.*
-import com.example.news_app.BuildConfig
 import com.example.news_app.Models.NewsApiResponse
 import com.example.news_app.Models.NewsHeadlines
+import com.example.news_app.Models.Source
+import com.example.news_app.Models.SourcesApiResponse
 import com.example.news_app.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.common.hash.Hashing
@@ -100,11 +100,27 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private lateinit var current_category: String
 
-    private var sources: Array<String> = arrayOf("CNN", "TechCrunch", "ABC News")
-    private var sources_api: Array<String> = arrayOf("cnn", "techcrunch", "abc-news")
-    private var current_checked_sources: BooleanArray = booleanArrayOf(false, false, false)
-
+    private var sources_list: MutableList<Source> = mutableListOf<Source>()
+    private lateinit var sourcesMap: MutableMap<String, String?>
+    private var current_checked_sources: BooleanArray = booleanArrayOf()
     private var string_sources: String? = null
+
+    private val languagesMap = mapOf(
+        "Any" to null,
+        "Arabic" to "ar",
+        "Chinese" to "zh",
+        "Dutch" to "nl",
+        "English" to "en",
+        "French" to "fr",
+        "German" to "de",
+        "Hebrew" to "he",
+        "Italian" to "it",
+        "Norwegian" to "no",
+        "Portuguese" to "pt",
+        "Russian" to "ru",
+        "Sami" to "se",
+        "Spanish" to "es",
+    )
 
     private lateinit var btn_business: Button
     private lateinit var btn_entertainment: Button
@@ -131,6 +147,10 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private var userPreferences: SharedPreferences? = null
 
+    private var default_category: String? = null
+    private var default_language: String? = null
+    private var default_country: String? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -138,26 +158,52 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         current_view =
             LayoutInflater.from(context).inflate(R.layout.fragment_news, container, false)
         current_category = "general"
-//        headlinesSelected = true
-
-    //    Toast.makeText(context, BuildConfig.DEBUG.toString(), Toast.LENGTH_SHORT).show()  //TODO for task1
-    //    println("---------------------- ${BuildConfig.DEBUG}") // TODO for task1
 
         initView()
         initDatabase()
 
         getUserSettings()
 
+        getSources(
+            category = default_category,
+            language = default_language,
+            country = default_country
+        )
+
         showNewsHeadlines()
 
         return current_view
     }
 
+    private fun getSources(
+        category: String? = null,
+        language: String? = null,
+        country: String? = null
+    ) {
+        val manager = RequestManager(requireContext())
+        manager.getSources(
+            listener = sources_listener,
+            category = category,
+            language = language,
+            country = country
+        )
+    }
+
     private fun getUserSettings() {
         userPreferences = context?.getSharedPreferences("User settings", Context.MODE_PRIVATE)
-        val user_country = userPreferences?.getString("User country", "us")?: "us"
+
+        val user_country = userPreferences?.getString("User country", null)
+        default_country = countriesMap[user_country]
         country_num = countriesMap.keys.indexOf(user_country)
         changeCurrentCountry()
+
+        default_category = userPreferences?.getString("User category",/* "general"*/null)// ?: "general"
+        if (default_category == "Any") {
+            default_category = null
+        }
+
+        val user_language = userPreferences?.getString("User language", null)
+        default_language = languagesMap[user_language]
     }
 
     private fun initView() {
@@ -305,7 +351,6 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Country")
             .setSingleChoiceItems(countriesMap.keys.toTypedArray(), country_num) { dialog, which ->
-                println("index: $which")
                 country_n = which
             }
             .setPositiveButton("Ok") { dialog, which ->
@@ -333,7 +378,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     }
 
     fun showNewsHeadlines(
-        category: String? = null,
+        category: String? = default_category,
         query: String? = null,
         sources: String? = null,
         country: String? = current_country_pair.second
@@ -349,22 +394,29 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     }
 
     fun openSourceSettings() {
-        val temp_checked_sources = current_checked_sources
+        sourcesMap = mutableMapOf()
+        sources_list.forEach { sourcesMap += Pair(it.name, it.id) }
+
+        val temp_checked_sources = current_checked_sources.copyOf()
+        val prev_checked_sources = current_checked_sources.copyOf()
+
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Source")
-            .setMultiChoiceItems(sources, current_checked_sources) { dialog, which, isChecked ->
+            .setMultiChoiceItems(
+                sourcesMap.keys.toTypedArray(),
+                current_checked_sources
+            ) { dialog, which, isChecked ->
                 temp_checked_sources[which] = isChecked
             }
             .setPositiveButton("Ok") { dialog, which ->
-                current_checked_sources = temp_checked_sources
+                current_checked_sources = temp_checked_sources.copyOf()
                 changeSources()
                 if (string_sources != null && current_country_pair.second != null) {
                     Toast.makeText(
                         context,
                         "You can't mix Country and Sources, please set \"Any\" in Country settings",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 } else {
                     showNewsHeadlines(
                         category = null,
@@ -379,8 +431,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                 for (i in current_checked_sources.indices) current_checked_sources[i] = false
             }
             .setNegativeButton("Cancel") { dialog, which ->
-                println("Cancel $which")  // TODO cancel
-
+                current_checked_sources = prev_checked_sources.copyOf()
             }
             .show()
     }
@@ -392,10 +443,12 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     }
 
     fun changeSources() {
+        string_sources = ""
         val result_sources_list = arrayListOf<String>()
-        for (i in 0..2) {
+        val sourceIdsArray = sourcesMap.values.toTypedArray()
+        for (i in current_checked_sources.indices) {
             if (current_checked_sources[i]) {
-                result_sources_list.add(sources_api[i])
+                result_sources_list.add(sourceIdsArray[i]?:"")
             }
         }
         string_sources = TextUtils.join(",", result_sources_list)
@@ -431,6 +484,22 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                     Toast.makeText(requireContext(), "Nothing found", Toast.LENGTH_SHORT).show()
                 } else {
                     showNews(newsHeadlinesList)
+                }
+            }
+
+            override fun onError(message: String) {
+                Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    private val sources_listener: OnFetchSourcesListener<SourcesApiResponse> =
+        object : OnFetchSourcesListener<SourcesApiResponse> {
+            override fun onFetchSources(sourcesList: List<Source>, message: String) {
+                if (sourcesList.isEmpty()) {
+                    Toast.makeText(requireContext(), "Sources not found", Toast.LENGTH_SHORT).show()
+                } else {
+                    sources_list.addAll(sourcesList)
+                    current_checked_sources = BooleanArray(sources_list.size) //
                 }
             }
 
