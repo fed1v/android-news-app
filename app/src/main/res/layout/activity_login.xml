@@ -38,12 +38,12 @@ android:orientation="vertical">
             android:src="@drawable/ic_google" />
 
         <ImageButton
-            android:id="@+id/btn_twitter"
+            android:id="@+id/btn_vk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingHorizontal="20dp"
-            android:src="@drawable/ic_twitter"
+            android:src="@drawable/ic_vk"
 
             />
 

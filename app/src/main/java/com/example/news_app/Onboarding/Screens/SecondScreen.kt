@@ -87,7 +87,7 @@ class SecondScreen : Fragment() {
     private fun openLanguageSettings() {
         var language_n = language_num
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Language for sources")
+            .setTitle("Default language")
             .setSingleChoiceItems(languagesMap.keys.toTypedArray(), language_num) { dialog, which ->
                 language_n = which
             }

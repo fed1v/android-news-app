@@ -126,10 +126,9 @@ class FirstScreen : Fragment() {
     }
 
     private fun openCountrySettings() {
-        println("Country settings")
         var country_n = country_num
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Country for sources")
+            .setTitle("Default country")
             .setSingleChoiceItems(countriesMap.keys.toTypedArray(), country_num) { dialog, which ->
                 country_n = which
             }

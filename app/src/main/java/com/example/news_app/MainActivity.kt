@@ -47,6 +47,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        println(user)
+        if(user == null) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            return
+        }
+
         initView()
         initDatabase()
 
@@ -55,15 +61,7 @@ class MainActivity : AppCompatActivity() {
 
         saveUserSettingsToSharedPreferences()
 
-
-        println(user)
-        if(user == null) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            return
-        }
-
         showNewsInNotifications()
-
 
         if(showHeadlines){
             openFragment(NewsFragment())
@@ -108,9 +106,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        timeStart = System.currentTimeMillis()
-        userStatsReference.child("total time").get().addOnCompleteListener {
-            totalTimeInDatabase = it.result.getValue(Long::class.java)
+        if(user == null) {
+            startActivity(Intent(this, LoginActivity::class.java))
+        } else{
+            timeStart = System.currentTimeMillis()
+            userStatsReference.child("total time").get().addOnCompleteListener {
+                totalTimeInDatabase = it.result.getValue(Long::class.java)
+            }
         }
         super.onResume()
     }
@@ -129,12 +131,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addTimeToStats() {
-        val userTime = timeEnd - timeStart
-        var totalTime = userTime
-        if(totalTimeInDatabase != null){
-            totalTime += totalTimeInDatabase!!
+        if (user != null) {
+            val userTime = timeEnd - timeStart
+            var totalTime = userTime
+            if (totalTimeInDatabase != null) {
+                totalTime += totalTimeInDatabase!!
+            }
+            userStatsReference.updateChildren(mapOf("total time" to totalTime))
         }
-        userStatsReference.updateChildren(mapOf("total time" to totalTime))
     }
 
     private fun initView(){

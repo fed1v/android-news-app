@@ -164,11 +164,20 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
         getUserSettings()
 
-        getSources(
-            category = default_category,
-            language = default_language,
-            country = default_country
-        )
+        if(default_category == null && default_country == null){
+            getSources(
+                category = "general",
+                language = default_language,
+                country = default_country
+            )
+        } else{
+            getSources(
+                category = default_category,
+                language = default_language,
+                country = default_country
+            )
+        }
+
 
         showNewsHeadlines()
 

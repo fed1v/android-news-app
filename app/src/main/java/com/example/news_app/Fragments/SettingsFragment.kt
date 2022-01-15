@@ -226,7 +226,7 @@ class SettingsFragment : Fragment() {
         println("Country settings")
         var country_n = country_num
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Country for sources")
+            .setTitle("Default country")
             .setSingleChoiceItems(countriesMap.keys.toTypedArray(), country_num) { dialog, which ->
                 country_n = which
             }
@@ -250,7 +250,7 @@ class SettingsFragment : Fragment() {
     private fun openLanguageSettings() {
         var language_n = language_num
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Language for sources")
+            .setTitle("Default language")
             .setSingleChoiceItems(languagesMap.keys.toTypedArray(), language_num) { dialog, which ->
                 language_n = which
             }
@@ -275,7 +275,7 @@ class SettingsFragment : Fragment() {
     private fun openCategorySettings() {
         var category_n = category_num
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Category for sources")
+            .setTitle("Default category")
             .setSingleChoiceItems(categories, category_num){ dialog, which ->
                 category_n = which
             }

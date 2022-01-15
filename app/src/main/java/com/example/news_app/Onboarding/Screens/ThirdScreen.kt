@@ -82,7 +82,7 @@ class ThirdScreen : Fragment() {
     private fun openCategorySettings() {
         var category_n = category_num
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Category for sources")
+            .setTitle("Default category")
             .setSingleChoiceItems(categories, category_num){ dialog, which ->
                 category_n = which
             }
