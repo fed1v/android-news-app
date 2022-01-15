@@ -391,7 +391,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         category: String? = default_category,
         query: String? = null,
         sources: String? = null,
-        country: String? = current_country_pair.second
+        country: String? = /*current_country_pair.second */ default_country
     ) {
         val manager = RequestManager(requireContext())
         manager.getNewsHeadlines(

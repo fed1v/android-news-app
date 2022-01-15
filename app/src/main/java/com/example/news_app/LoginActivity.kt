@@ -1,6 +1,8 @@
 package com.example.news_app
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -20,8 +22,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 
 class LoginActivity : AppCompatActivity() {
     companion object {
@@ -141,7 +142,26 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     initUserInDatabase()
-                    startMainActivity()
+
+            //        if(getSharedPreferences("onBoarding", Context.MODE_PRIVATE)?.getBoolean("Finished", false)?:false){ //
+            //            startMainActivity()
+            //            return@addOnCompleteListener
+            //        }
+
+                    userStatsReference.addListenerForSingleValueEvent(object: ValueEventListener{
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val isFirstLogin = !snapshot.hasChild("total time")
+                            println("isFirstLogin: $isFirstLogin")
+
+                            if(isFirstLogin){
+                                startOnBoardingActivity()
+                            } else{
+                                startMainActivity()
+                            }
+                        }
+                        override fun onCancelled(error: DatabaseError) {}
+                    })
+
                 } else {
                     Toast.makeText(this, "Auth failed", Toast.LENGTH_SHORT).show()
                 }
@@ -171,11 +191,18 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     initUserInDatabase()
-                    startMainActivity()
+                //    startMainActivity()
+                    startOnBoardingActivity()
                 } else {
                     Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun startOnBoardingActivity(){
+        val intent = Intent(applicationContext, OnBoardingActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun startMainActivity() {

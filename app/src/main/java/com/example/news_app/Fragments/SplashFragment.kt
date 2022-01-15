@@ -18,11 +18,11 @@ class SplashFragment : Fragment() {
     ): View? {
 
         Handler().postDelayed({
-            if(onBoardingFinished()){
-                findNavController().navigate(R.id.action_splashFragment_to_loginActivity)
-            } else{
+       //     if(onBoardingFinished()){
+       //         findNavController().navigate(R.id.action_splashFragment_to_mainActivity)
+       //     } else{
                 findNavController().navigate(R.id.action_splashFragment_to_viewPagerFragment)
-            }
+        //    }  // TODO
         }, 1000)
 
         return inflater.inflate(R.layout.fragment_splash, container, false)
