@@ -11,6 +11,7 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.widget.Toolbar
+import com.example.news_app.InternetConnection
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
 import com.example.news_app.R
@@ -48,8 +49,14 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        timeStart = System.currentTimeMillis()
         v = LayoutInflater.from(context).inflate(R.layout.fragment_open_bookmarks_news, container, false)
+
+        if(!InternetConnection.isConnected()){
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+            return v
+        }
+
+        timeStart = System.currentTimeMillis()
         urlHashCode = Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
 
         if(headlines.category == null || headlines.category == ""){
@@ -93,8 +100,12 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     }
 
     override fun onDestroy() {
-        timeEnd = System.currentTimeMillis()
-        addNewsToStats()
+        if(!InternetConnection.isConnected()) {
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+        } else{
+            timeEnd = System.currentTimeMillis()
+            addNewsToStats()
+        }
         super.onDestroy()
     }
 

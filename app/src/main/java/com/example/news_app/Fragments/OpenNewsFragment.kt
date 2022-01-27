@@ -9,6 +9,7 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.widget.Toolbar
+import com.example.news_app.InternetConnection
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
 import com.example.news_app.R
@@ -46,6 +47,12 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         v = inflater.inflate(R.layout.fragment_open_news, container, false)
+
+        if(!InternetConnection.isConnected()){
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+            return v
+        }
+
         timeStart = System.currentTimeMillis()
         initView()
         initDatabase()
@@ -91,8 +98,12 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     }
 
     override fun onDestroy() {
-        timeEnd = System.currentTimeMillis()
-        addNewsToStats()
+        if(!InternetConnection.isConnected()){
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+        } else{
+            timeEnd = System.currentTimeMillis()
+            addNewsToStats()
+        }
         super.onDestroy()
     }
 

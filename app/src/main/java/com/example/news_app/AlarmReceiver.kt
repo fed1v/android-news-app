@@ -1,66 +1,86 @@
 package com.example.news_app
 
+import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
+import android.os.Build
+import android.util.Log
+import android.widget.Toast
+import androidx.legacy.content.WakefulBroadcastReceiver
+import java.util.*
 
-class AlarmReceiver() : BroadcastReceiver() {
-    private var imageBitmap: Bitmap? = null
+
+class AlarmReceiver : WakefulBroadcastReceiver() {
+    companion object {
+        var calendar: Calendar? = null
+
+        private val ACTION_START_NOTIFICATION_SERVICE = "ACTION_START_NOTIFICATION_SERVICE"
+        private val ACTION_DELETE_NOTIFICATION = "ACTION_DELETE_NOTIFICATION"
+
+        fun setAlarm(context: Context) {
+            calendar = Calendar.getInstance()
+
+            val timeInMillis = context
+                .getSharedPreferences("Notifications time", MODE_PRIVATE)!!
+                .getLong("Time", -1L)
+
+            calendar!!.timeInMillis = timeInMillis
+
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val pendingIntent = getStartPendingIntent(context)
+            /*alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar!!.timeInMillis,
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+            )*/ // TODO
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar!!.timeInMillis,
+                    pendingIntent
+                )
+            }
+
+            Toast.makeText(context, "Alarm set successfully", Toast.LENGTH_SHORT).show()
+        }
+
+        private fun getStartPendingIntent(context: Context): PendingIntent? {
+            val intent = Intent(context, AlarmReceiver::class.java)
+            intent.action = ACTION_START_NOTIFICATION_SERVICE
+            return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+
+        fun getDeleteIntent(context: Context?): PendingIntent? {
+            val intent = Intent(context, AlarmReceiver::class.java)
+            intent.action = ACTION_DELETE_NOTIFICATION
+            return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+    }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val i = Intent(context, LoginActivity::class.java)
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, i, 0)
+        Log.d("OnReceive", "OnReceive")
 
-        val title = intent!!.getStringExtra("notification_title")
-        val description = intent.getStringExtra("notification_description")
-        val urlToImage = intent.getStringExtra("urlToImage")
+        val action = intent?.action
+        var serviceIntent: Intent? = null
 
-        val target = object : Target {
-            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                imageBitmap = bitmap
-            }
-            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {}
-            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
-        }
-
-        if (urlToImage != null && urlToImage != "") {
-            Picasso
-                .get()
-                .load(urlToImage)
-                .resize(2048, 1600)
-                .onlyScaleDown()
-                .into(target)
-        }
-
-        val builder: NotificationCompat.Builder = NotificationCompat.Builder(context!!, "NewsApp")
-            .setSmallIcon(R.drawable.ic_google) // TODO change
-            .setContentTitle(title)
-            .setContentText(description)
-            .setAutoCancel(true)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(pendingIntent)
-
-        if(imageBitmap != null){
-            builder
-                .setLargeIcon(imageBitmap)
-                .setStyle(
-                    NotificationCompat
-                    .BigPictureStyle()
-                    .bigPicture(imageBitmap)  // TODO null when app closed
-                    .bigLargeIcon(null)
+        if (ACTION_START_NOTIFICATION_SERVICE == action) {
+            Log.i(javaClass.simpleName, "onReceive from alarm, starting notification service")
+            println("onReceive from alarm, starting notification service")
+            serviceIntent = NotificationIntentService.createIntentStartNotificationService(context)
+        } else if (ACTION_DELETE_NOTIFICATION == action) {
+            Log.i(
+                javaClass.simpleName,
+                "onReceive delete notification action, starting notification service to handle delete"
             )
+            serviceIntent = NotificationIntentService.createIntentDeleteNotification(context)
         }
 
-        val notificationManagerCompat = NotificationManagerCompat.from(context)
-        notificationManagerCompat.notify(123, builder.build())
+        if (serviceIntent != null) {
+            println("Start service")
+            startWakefulService(context, serviceIntent)
+        }
     }
 }

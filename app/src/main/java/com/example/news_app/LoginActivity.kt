@@ -28,6 +28,7 @@ import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKAuthResult
 import com.vk.api.sdk.auth.VKScope
+import java.lang.Exception
 
 class LoginActivity : AppCompatActivity() {
     companion object {
@@ -56,11 +57,16 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        if(!InternetConnection.isConnected()){
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         auth = FirebaseAuth.getInstance()
         createRequest()
 
         googleSignInAccount = GoogleSignIn.getLastSignedInAccount(this)
-        if (googleSignInAccount != null || auth.currentUser != null) {
+        if (/*googleSignInAccount != null || */auth.currentUser != null) {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
@@ -213,7 +219,11 @@ class LoginActivity : AppCompatActivity() {
             }
         } else{
             println("Facebook")
-            callbackManager.onActivityResult(requestCode, resultCode, data)
+            try {
+                callbackManager.onActivityResult(requestCode, resultCode, data)
+            } catch (e: Exception){
+                e.printStackTrace()
+            }
         }
 
 

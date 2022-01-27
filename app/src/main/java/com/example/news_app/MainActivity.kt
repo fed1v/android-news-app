@@ -47,21 +47,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        initView()
+        initDatabase()
+
+        createNotificationChannel()
+
         println(user)
         if(user == null) {
             startActivity(Intent(this, LoginActivity::class.java))
             return
         }
 
-        initView()
-        initDatabase()
-
-        createNotificationChannel()
-        setCalendar()
 
         saveUserSettingsToSharedPreferences()
 
-        showNewsInNotifications()
 
         if(showHeadlines){
             openFragment(NewsFragment())
@@ -100,15 +99,10 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun showNewsInNotifications() {
-        val manager = RequestManager(this)
-        manager.getNewsHeadlines(listener, null, null, null, "us")
-    }
-
     override fun onResume() {
         if(user == null) {
             startActivity(Intent(this, LoginActivity::class.java))
-        } else{
+        } else if(InternetConnection.isConnected()){
             timeStart = System.currentTimeMillis()
             userStatsReference.child("total time").get().addOnCompleteListener {
                 totalTimeInDatabase = it.result.getValue(Long::class.java)
@@ -167,31 +161,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setAlarm(newsList: List<NewsHeadlines>){
-        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, AlarmReceiver::class.java)
-
-        if(!newsList.isEmpty()){
-            intent.putExtra("notification_title", newsList[0].title)
-            intent.putExtra("notification_description", newsList[0].description)
-            intent.putExtra("urlToImage", newsList[0].urlToImage)
-        }else{
-            intent.putExtra("notification_title", "newsList[0].title...")
-            intent.putExtra("notification_description", "newsList[0].description....")
-            intent.putExtra("urlToImage", "")
-        }
-        pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
-    }
-
-    private fun setCalendar(){
-        calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 17)
-        calendar.set(Calendar.MINUTE, 49)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-    }
-
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "NewsAppNotifications"
@@ -204,12 +173,5 @@ class MainActivity : AppCompatActivity() {
             val notificationManager: NotificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
-    }
-
-    val listener: OnFetchDataListener<NewsApiResponse> = object: OnFetchDataListener<NewsApiResponse>{
-        override fun onFetchData(newsHeadlinesList: List<NewsHeadlines>, message: String) {
-            setAlarm(newsHeadlinesList)
-        }
-        override fun onError(message: String) {}
     }
 }

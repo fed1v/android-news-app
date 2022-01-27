@@ -151,6 +151,11 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
             LayoutInflater.from(context)
                 .inflate(R.layout.fragment_news_everything, container, false)
 
+        if(!InternetConnection.isConnected()){
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+            return current_view
+        }
+
         initView()
         initDatabase()
 

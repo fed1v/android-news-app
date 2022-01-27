@@ -54,6 +54,30 @@
         />
 
     <Button
+        android:id="@+id/btn_select_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select notifications time"
+        android:textColor="@color/black"
+        />
+
+    <Button
+        android:id="@+id/btn_set_alarm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set alarm"
+        android:textColor="@color/black"
+        />
+
+    <Button
+        android:id="@+id/btn_cancel_alarm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancel alarm"
+        android:textColor="@color/black"
+        />
+
+    <Button
         android:id="@+id/btn_logout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

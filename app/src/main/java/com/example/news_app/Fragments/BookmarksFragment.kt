@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.news_app.InternetConnection
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.NewsAdapter
 import com.example.news_app.R
@@ -45,6 +46,11 @@ class BookmarksFragment : Fragment(), SelectListener {
     ): View? {
         v = LayoutInflater.from(context).inflate(R.layout.fragment_bookmarks, container, false)
 
+        if(!InternetConnection.isConnected()){
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+            return v
+        }
+
         bookmarks = arrayListOf()
         initDatabase()
         initView()
@@ -64,10 +70,10 @@ class BookmarksFragment : Fragment(), SelectListener {
 
         requireActivity().onBackPressedDispatcher.addCallback {
             bottomNavigationView.selectedItemId = R.id.newsFragment
-            requireActivity().supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, NewsFragment())
-                .commit()
+            activity?.supportFragmentManager
+                ?.beginTransaction()
+                ?.replace(R.id.fragment_container, NewsFragment())
+                ?.commit()
         }
 
         return v

@@ -2,7 +2,6 @@ package com.example.news_app.Fragments
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -11,8 +10,10 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.news_app.InternetConnection
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
 import com.example.news_app.Models.Source
@@ -25,12 +26,8 @@ import com.google.common.hash.Hashing
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
-import kotlinx.coroutines.*
 import org.apache.commons.lang3.time.DurationFormatUtils
 import java.nio.charset.Charset
-import java.util.*
-import java.util.concurrent.CountDownLatch
-import kotlin.collections.ArrayList
 
 class StatsFragment : Fragment(), SelectInStatsListener {
     private lateinit var v: View
@@ -83,6 +80,12 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         savedInstanceState: Bundle?
     ): View? {
         v = LayoutInflater.from(context).inflate(R.layout.fragment_stats, container, false)
+
+        if(!InternetConnection.isConnected()){
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+            return v
+        }
+
         current_category = "all"
         stats = arrayListOf()
 
@@ -229,10 +232,10 @@ class StatsFragment : Fragment(), SelectInStatsListener {
 
         requireActivity().onBackPressedDispatcher.addCallback {
             bottomNavigationView.selectedItemId = R.id.newsFragment
-            requireActivity().supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, NewsFragment())
-                .commit()
+            activity?.supportFragmentManager
+                ?.beginTransaction()
+                ?.replace(R.id.fragment_container, NewsFragment())
+                ?.commit()
         }
     }
 

@@ -132,7 +132,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     private lateinit var btn_options: ImageButton
     private lateinit var searchView: SearchView
 
-    private lateinit var current_view: View
+    private lateinit var v: View
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firebaseDatabase: FirebaseDatabase
@@ -155,8 +155,13 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        current_view =
-            LayoutInflater.from(context).inflate(R.layout.fragment_news, container, false)
+        v = LayoutInflater.from(context).inflate(R.layout.fragment_news, container, false)
+
+        if(!InternetConnection.isConnected()){
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+            return v
+        }
+
         current_category = "general"
 
         initView()
@@ -181,7 +186,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
         showNewsHeadlines()
 
-        return current_view
+        return v
     }
 
     private fun getSources(
@@ -226,7 +231,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     }
 
     private fun initView() {
-        searchView = current_view.findViewById(R.id.search_view)
+        searchView = v.findViewById(R.id.search_view)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (string_sources != null && current_country_pair.second != null) {
@@ -256,8 +261,8 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
             }
         })
 
-        toolbar = current_view.findViewById(R.id.toolbar)
-        spinner = current_view.findViewById(R.id.spinner)
+        toolbar = v.findViewById(R.id.toolbar)
+        spinner = v.findViewById(R.id.spinner)
 
         val arrayAdapter = ArrayAdapter<String>(
             requireContext(),
@@ -282,14 +287,14 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
 
-        btn_business = current_view.findViewById(R.id.btn_business)
-        btn_entertainment = current_view.findViewById(R.id.btn_entertainment)
-        btn_general = current_view.findViewById(R.id.btn_general)
-        btn_health = current_view.findViewById(R.id.btn_health)
-        btn_science = current_view.findViewById(R.id.btn_science)
-        btn_sports = current_view.findViewById(R.id.btn_sports)
-        btn_technology = current_view.findViewById(R.id.btn_technology)
-        btn_options = current_view.findViewById(R.id.btn_options)
+        btn_business = v.findViewById(R.id.btn_business)
+        btn_entertainment = v.findViewById(R.id.btn_entertainment)
+        btn_general = v.findViewById(R.id.btn_general)
+        btn_health = v.findViewById(R.id.btn_health)
+        btn_science = v.findViewById(R.id.btn_science)
+        btn_sports = v.findViewById(R.id.btn_sports)
+        btn_technology = v.findViewById(R.id.btn_technology)
+        btn_options = v.findViewById(R.id.btn_options)
 
         btn_business.setOnClickListener(this)
         btn_entertainment.setOnClickListener(this)
@@ -540,7 +545,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private fun showNews(newsHeadlinesList: List<NewsHeadlines>) {
         if (context != null) {
-            recyclerView = current_view.findViewById(R.id.news_recyclerView)
+            recyclerView = v.findViewById(R.id.news_recyclerView)
             recyclerView.setHasFixedSize(true)
             recyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
             adapter = NewsAdapter(requireContext(), newsHeadlinesList, this)

@@ -1,5 +1,8 @@
 package com.example.news_app.Fragments
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
@@ -9,9 +12,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import com.example.news_app.LoginActivity
+import com.example.news_app.*
 import com.example.news_app.R
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -20,13 +24,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
+import java.util.*
 
 class SettingsFragment : Fragment() {
+    private lateinit var pendingIntent: PendingIntent
     private lateinit var v: View
     private lateinit var text_user_name: TextView
     private lateinit var text_user_email: TextView
@@ -35,6 +43,9 @@ class SettingsFragment : Fragment() {
     private lateinit var button_language: Button
     private lateinit var button_country: Button
     private lateinit var button_category: Button
+    private lateinit var button_select_time: Button
+    private lateinit var button_set_alarm: Button
+    private lateinit var button_cancel_alarm: Button
 
     private var googleSignInAccount: GoogleSignInAccount? = null
     private var googleSignInClient: GoogleSignInClient? = null
@@ -135,12 +146,22 @@ class SettingsFragment : Fragment() {
     private var editor: SharedPreferences.Editor? = null
 
     private lateinit var bottomNavigationView: BottomNavigationView
+    private lateinit var picker: MaterialTimePicker
+    companion object{
+        lateinit var calendar: Calendar
+    }
+    private var alarmManager: AlarmManager? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         v = LayoutInflater.from(context).inflate(R.layout.fragment_settings, container, false)
+
+        if(!InternetConnection.isConnected()){
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+            return v
+        }
 
         initDatabase()
         getUserSettings()
@@ -196,6 +217,9 @@ class SettingsFragment : Fragment() {
         button_category = v.findViewById(R.id.btn_category)
         button_language = v.findViewById(R.id.btn_language)
         button_country = v.findViewById(R.id.btn_country)
+        button_select_time = v.findViewById(R.id.btn_select_time)
+        button_set_alarm = v.findViewById(R.id.btn_set_alarm)
+        button_cancel_alarm = v.findViewById(R.id.btn_cancel_alarm)
 
         button_logout.setOnClickListener {
             logout()
@@ -213,17 +237,73 @@ class SettingsFragment : Fragment() {
             openCountrySettings()
         }
 
+        button_select_time.setOnClickListener {
+            selectTime()
+        }
+
+        button_set_alarm.setOnClickListener {
+            setAlarm()
+        }
+
+        button_cancel_alarm.setOnClickListener {
+            cancelAlarm()  // TODO
+        }
+
         requireActivity().onBackPressedDispatcher.addCallback {
             bottomNavigationView.selectedItemId = R.id.newsFragment
-            requireActivity().supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, NewsFragment())
-                .commit()
+            activity?.supportFragmentManager
+                ?.beginTransaction()
+                ?.replace(R.id.fragment_container, NewsFragment())
+                ?.commit()
         }
     }
 
+    private fun setAlarm() {
+        AlarmReceiver.setAlarm(requireContext())
+    }
+
+    private fun cancelAlarm() {
+        val intent = Intent(activity, AlarmReceiver::class.java)
+        pendingIntent = PendingIntent.getBroadcast(activity, 0, intent, 0)
+        if(alarmManager == null){
+            activity?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        }
+        alarmManager?.cancel(pendingIntent)
+        Toast.makeText(context, "Alarm canceled successfully", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun selectTime() {
+        picker = MaterialTimePicker.Builder()
+            .setTimeFormat(TimeFormat.CLOCK_24H)
+            .setHour(12)
+            .setMinute(0)
+            .setTitleText("Select notifications time")
+            .build()
+
+        picker.addOnPositiveButtonClickListener{
+            val hour = picker.hour
+            val minute = picker.minute
+            println("$hour:$minute")
+            setCalendar()
+        }
+
+        if(activity != null){
+            picker.show(requireActivity().supportFragmentManager, "NewsApp")
+        }
+    }
+
+    private fun setCalendar(){
+        calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, picker.hour)
+        calendar.set(Calendar.MINUTE, picker.minute)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val editor = requireContext().getSharedPreferences("Notifications time", MODE_PRIVATE).edit()
+        editor.putLong("Time", calendar.timeInMillis)
+        editor.apply()
+    }
+
     private fun openCountrySettings() {
-        println("Country settings")
         var country_n = country_num
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Default country")
