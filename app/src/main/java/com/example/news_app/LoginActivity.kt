@@ -35,7 +35,6 @@ class LoginActivity : AppCompatActivity() {
         const val RC_SIGN_IN: Int = 123
     }
 
-    private lateinit var buttonToMainActivity: Button
     private lateinit var buttonGoogle: ImageButton
     private lateinit var buttonVK: ImageButton
     private lateinit var login_button_facebook: LoginButton
@@ -80,11 +79,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        buttonToMainActivity = findViewById(R.id.button_to_mainActivity)
-        buttonToMainActivity.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
 
         buttonGoogle = findViewById(R.id.btn_google)
         buttonVK = findViewById(R.id.btn_vk)

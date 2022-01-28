@@ -30,21 +30,26 @@ class AlarmReceiver : WakefulBroadcastReceiver() {
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val pendingIntent = getStartPendingIntent(context)
-            /*alarmManager.setRepeating(
+            alarmManager.setRepeating(
                 AlarmManager.RTC_WAKEUP,
                 calendar!!.timeInMillis,
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent
-            )*/ // TODO
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            )
+            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     calendar!!.timeInMillis,
                     pendingIntent
                 )
-            }
+            }*/
 
             Toast.makeText(context, "Alarm set successfully", Toast.LENGTH_SHORT).show()
+        }
+
+        fun cancelAlarm(context: Context){
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            // TODO
         }
 
         private fun getStartPendingIntent(context: Context): PendingIntent? {

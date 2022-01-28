@@ -89,7 +89,7 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
 
 
         requireActivity().onBackPressedDispatcher.addCallback{
-            bottomNavigationView.selectedItemId = R.id.newsFragment
+            bottomNavigationView.selectedItemId = R.id.bookmarksFragment
             requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, BookmarksFragment())
@@ -132,8 +132,12 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     }
 
     private fun openNotes() {
-        //TODO
-        println("Open Notes")
+        activity
+            ?.supportFragmentManager
+            ?.beginTransaction()
+            ?.replace(R.id.fragment_container, NotesFragment(headlines))
+            ?.addToBackStack(null)
+            ?.commit()
     }
 
     private fun deleteFromBookmarks() {

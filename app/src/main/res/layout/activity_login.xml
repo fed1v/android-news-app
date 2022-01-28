@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
@@ -11,45 +11,14 @@ android:orientation="vertical">
         android:id="@+id/textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:text="Please, sign in"
         android:textAlignment="center"
-        android:textSize="30sp"
-        android:layout_margin="8dp"
         android:textColor="@color/black"
-        />
-
-    <LinearLayout
-        android:layout_weight="10"
-        android:id="@+id/linear_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/btn_google"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="20dp"
-            android:src="@drawable/ic_google" />
-
-        <ImageButton
-            android:id="@+id/btn_vk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="20dp"
-            android:src="@drawable/ic_vk"
-
-            />
-
-
-    </LinearLayout>
-
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <com.facebook.login.widget.LoginButton
@@ -57,15 +26,34 @@ android:orientation="vertical">
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="30dp" />
+        android:layout_marginTop="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_google" />
 
-    <Button
-        android:layout_weight="1"
-        android:id="@+id/button_to_mainActivity"
+    <ImageButton
+        android:id="@+id/btn_google"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go to Main" />
+        android:layout_marginTop="52dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:paddingHorizontal="20dp"
+        android:src="@drawable/ic_google"
+        app:layout_constraintEnd_toStartOf="@+id/btn_vk"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/login_button_facebook"
+        app:layout_constraintTop_toBottomOf="@+id/textview" />
 
+    <ImageButton
+        android:id="@+id/btn_vk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingHorizontal="20dp"
+        android:src="@drawable/ic_vk"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="@+id/login_button_facebook"
+        app:layout_constraintTop_toTopOf="@+id/btn_google" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
