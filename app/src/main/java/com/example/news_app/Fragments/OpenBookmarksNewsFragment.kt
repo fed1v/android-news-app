@@ -2,7 +2,6 @@ package com.example.news_app.Fragments
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +10,7 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import com.example.news_app.InternetConnection
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
@@ -19,10 +19,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.common.hash.Hashing
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import java.nio.charset.Charset
-import java.util.*
 
 class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var v: View
@@ -45,13 +43,16 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private var timeEnd: Long = 0
     private var timeInDatabase: Long? = 0
 
+    private var password: String? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        v = LayoutInflater.from(context).inflate(R.layout.fragment_open_bookmarks_news, container, false)
+        v = LayoutInflater.from(context)
+            .inflate(R.layout.fragment_open_bookmarks_news, container, false)
 
-        if(!InternetConnection.isConnected()){
+        if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
             return v
         }
@@ -59,19 +60,21 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         timeStart = System.currentTimeMillis()
         urlHashCode = Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
 
-        if(headlines.category == null || headlines.category == ""){
+        if (headlines.category == null || headlines.category == "") {
             current_category = "other"
-        } else{
+        } else {
             current_category = headlines.category!!
         }
 
         bottomNavigationView = requireActivity().findViewById(R.id.bottom_nav)
 
         initDatabase()
+        getPasswordFromDatabase()
 
-        userStatsReference.child(current_category).child(urlHashCode).child("time").get().addOnCompleteListener {
-            timeInDatabase = it.result.getValue(Long::class.java)
-        }
+        userStatsReference.child(current_category).child(urlHashCode).child("time").get()
+            .addOnCompleteListener {
+                timeInDatabase = it.result.getValue(Long::class.java)
+            }
 
         webView = v.findViewById(R.id.web_view_open_bookmarks_news)
         webView.webViewClient = WebViewClient()
@@ -79,16 +82,22 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
 
         toolbar = v.findViewById(R.id.toolbar_open_bookmarks_news)
         toolbar.setOnMenuItemClickListener {
-            when(it.itemId){
+            when (it.itemId) {
                 R.id.mi_share -> shareLink()
                 R.id.mi_delete -> deleteFromBookmarks()
-                R.id.mi_notes -> openNotes()
+                R.id.mi_notes -> {
+                    if (password == null) {
+                        openNotes()
+                    } else {
+                        openSecurityDialog()
+                    }
+                }
             }
             true
         }
 
 
-        requireActivity().onBackPressedDispatcher.addCallback{
+        requireActivity().onBackPressedDispatcher.addCallback {
             bottomNavigationView.selectedItemId = R.id.bookmarksFragment
             requireActivity().supportFragmentManager
                 .beginTransaction()
@@ -99,10 +108,29 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         return v
     }
 
+    private fun openSecurityDialog() {
+        val dialog = NotesSecurityDialogFragment(headlines)
+        try {
+            dialog.show(requireActivity().supportFragmentManager, "Notes Security")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun getPasswordFromDatabase() {
+        currentUserReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                password = snapshot.child("notesPassword").getValue(String::class.java)
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
     override fun onDestroy() {
-        if(!InternetConnection.isConnected()) {
+        if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-        } else{
+        } else {
             timeEnd = System.currentTimeMillis()
             addNewsToStats()
         }

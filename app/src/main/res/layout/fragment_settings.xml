@@ -1,129 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Fragments.SettingsFragment"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".Fragments.SettingsFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/design_default_color_primary"
         app:title="Settings"
-        app:titleTextColor="@color/white"
-        />
+        app:titleTextColor="@color/white" />
 
     <TextView
         android:id="@+id/text_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="name: "
         android:layout_gravity="center"
-        />
+        android:text="name: " />
 
     <TextView
         android:id="@+id/text_user_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="email: "
         android:layout_gravity="center"
-        />
+        android:text="email: " />
 
     <Button
         android:id="@+id/btn_language"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Default language"
-        android:textColor="@color/black"
-        android:textAlignment="textStart"
-
-        style="?android:attr/borderlessButtonStyle"
-        android:drawableLeft="@drawable/ic_language"
         android:layout_margin="6dp"
-        />
+        android:drawableLeft="@drawable/ic_language"
+
+        android:text="Default language"
+        android:textAlignment="textStart"
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/btn_country"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_margin="6dp"
+        android:drawableLeft="@drawable/ic_country"
+
         android:text="Default country"
         android:textAlignment="textStart"
-        android:textColor="@color/black"
-
-        android:drawableLeft="@drawable/ic_country"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_margin="6dp"
-
-        />
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/btn_category"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Default category"
-        android:textColor="@color/black"
-        android:textAlignment="textStart"
-
-        android:drawableLeft="@drawable/ic_category"
-        style="?android:attr/borderlessButtonStyle"
         android:layout_margin="6dp"
+        android:drawableLeft="@drawable/ic_category"
 
-        />
+        android:text="Default category"
+        android:textAlignment="textStart"
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/btn_select_time"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select notifications time"
-        android:textColor="@color/black"
-        android:textAlignment="textStart"
-
-        android:drawableLeft="@drawable/ic_clock"
-        style="?android:attr/borderlessButtonStyle"
         android:layout_margin="6dp"
+        android:drawableLeft="@drawable/ic_clock"
 
-        />
+        android:text="Select notifications time"
+        android:textAlignment="textStart"
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/btn_set_alarm"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Set alarm"
-        android:textColor="@color/black"
-        android:textAlignment="textStart"
-
-        style="?android:attr/borderlessButtonStyle"
         android:layout_margin="6dp"
+        android:text="Set alarm"
 
-        />
+        android:textAlignment="textStart"
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/btn_cancel_alarm"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="6dp"
         android:text="Cancel alarm"
-        android:textColor="@color/black"
-        android:textAlignment="textStart"
 
-        style="?android:attr/borderlessButtonStyle"
+        android:textAlignment="textStart"
+        android:textColor="@color/black" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switch_notes_security"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_margin="6dp"
 
-        />
+        android:drawableLeft="@drawable/ic_lock"
+        android:drawableTint="#0000FF"
+        android:text="Notes security"
+        android:textSize="17sp" />
+
+    <Button
+        android:id="@+id/btn_change_password"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:text="Change password"
+
+        android:textAlignment="textStart"
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/btn_logout"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Logout"
-        android:textColor="@color/black"
-        android:textAlignment="textStart"
-
-        android:drawableLeft="@drawable/ic_logout"
-        style="?android:attr/borderlessButtonStyle"
         android:layout_margin="6dp"
+        android:drawableLeft="@drawable/ic_logout"
 
-        />
+        android:text="Logout"
+        android:textAlignment="textStart"
+        android:textColor="@color/black" />
 
 </LinearLayout>
