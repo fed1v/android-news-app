@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -26,9 +25,7 @@ import com.google.firebase.database.*
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
-import com.vk.api.sdk.auth.VKAuthResult
 import com.vk.api.sdk.auth.VKScope
-import java.lang.Exception
 
 class LoginActivity : AppCompatActivity() {
     companion object {
@@ -56,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        if(!InternetConnection.isConnected()){
+        if (!InternetConnection.isConnected()) {
             Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
             return
         }
@@ -65,12 +62,11 @@ class LoginActivity : AppCompatActivity() {
         createRequest()
 
         googleSignInAccount = GoogleSignIn.getLastSignedInAccount(this)
-        if (/*googleSignInAccount != null || */auth.currentUser != null) {
+        if (auth.currentUser != null) {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
         initView()
-
     }
 
     override fun onBackPressed() {
@@ -79,7 +75,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-
         buttonGoogle = findViewById(R.id.btn_google)
         buttonVK = findViewById(R.id.btn_vk)
 
@@ -92,6 +87,7 @@ class LoginActivity : AppCompatActivity() {
                 override fun onSuccess(result: LoginResult?) {
                     handleFacebookAccessToken(result!!.accessToken)
                 }
+
                 override fun onCancel() {}
                 override fun onError(error: FacebookException?) {
                     println("Facebook Error: $error")
@@ -207,15 +203,15 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this@LoginActivity, "Login Failed", Toast.LENGTH_SHORT).show()
                 }
             }
-            if(!VK.onActivityResult(requestCode, resultCode, data, callback)){
+            if (!VK.onActivityResult(requestCode, resultCode, data, callback)) {
                 super.onActivityResult(requestCode, resultCode, data)
                 return
             }
-        } else{
+        } else {
             println("Facebook")
             try {
                 callbackManager.onActivityResult(requestCode, resultCode, data)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
@@ -237,14 +233,13 @@ class LoginActivity : AppCompatActivity() {
                     userStatsReference.addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             val isFirstLogin = !snapshot.hasChild("total time")
-                            println("isFirstLogin: $isFirstLogin")
-
                             if (isFirstLogin) {
                                 startOnBoardingActivity()
                             } else {
                                 startMainActivity()
                             }
                         }
+
                         override fun onCancelled(error: DatabaseError) {}
                     })
 
@@ -292,6 +287,7 @@ class LoginActivity : AppCompatActivity() {
                                 startMainActivity()
                             }
                         }
+
                         override fun onCancelled(error: DatabaseError) {}
                     })
                 } else {

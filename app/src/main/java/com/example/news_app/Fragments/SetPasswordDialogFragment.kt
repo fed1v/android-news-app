@@ -8,12 +8,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import com.example.news_app.DatabaseHelper
 import com.example.news_app.EncryptionHelper
 import com.example.news_app.R
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 
 class SetPasswordDialogFragment : DialogFragment() {
     private lateinit var v: View
@@ -23,13 +20,7 @@ class SetPasswordDialogFragment : DialogFragment() {
     private lateinit var et_password: EditText
     private lateinit var et_confirm_password: EditText
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var usersReference: DatabaseReference
-    private lateinit var currentUserReference: DatabaseReference
-    private lateinit var userBookmarksReference: DatabaseReference
-    private lateinit var userStatsReference: DatabaseReference
-    private var user: FirebaseUser? = null
+    private lateinit var databaseHelper: DatabaseHelper
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,8 +29,13 @@ class SetPasswordDialogFragment : DialogFragment() {
     ): View? {
         v = inflater.inflate(R.layout.dialog_fragment_set_password, container, false)
 
-        initDatabase()
+        databaseHelper = DatabaseHelper(requireContext())
+        initView()
 
+        return v
+    }
+
+    private fun initView() {
         btn_ok = v.findViewById(R.id.btn_ok)
         btn_cancel = v.findViewById(R.id.btn_cancel)
         et_password = v.findViewById(R.id.et_password)
@@ -64,23 +60,9 @@ class SetPasswordDialogFragment : DialogFragment() {
         btn_cancel.setOnClickListener {
             dismiss()
         }
-
-        return v
     }
 
     private fun addPasswordToDatabase(password: String) {
-        currentUserReference.updateChildren(mapOf("notesPassword" to password))
-    }
-
-    private fun initDatabase() {
-        auth = FirebaseAuth.getInstance()
-        user = auth.currentUser
-        if (user != null) {
-            firebaseDatabase = FirebaseDatabase.getInstance()
-            usersReference = firebaseDatabase.getReference("users")
-            currentUserReference = usersReference.child(user!!.uid)
-            userBookmarksReference = currentUserReference.child("bookmarks")
-            userStatsReference = currentUserReference.child("stats")
-        }
+        databaseHelper.currentUserReference.updateChildren(mapOf("notesPassword" to password))
     }
 }

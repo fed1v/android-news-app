@@ -11,16 +11,16 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import com.example.news_app.DatabaseHelper
+import com.example.news_app.EncryptionHelper
 import com.example.news_app.InternetConnection
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
 import com.example.news_app.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.common.hash.Hashing
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.*
-import java.nio.charset.Charset
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 
 class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var v: View
@@ -28,13 +28,7 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var webView: WebView
     private lateinit var bottomNavigationView: BottomNavigationView
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var usersReference: DatabaseReference
-    private lateinit var currentUserReference: DatabaseReference
-    private lateinit var userBookmarksReference: DatabaseReference
-    private lateinit var userStatsReference: DatabaseReference
-    private var user: FirebaseUser? = null
+    private lateinit var databaseHelper: DatabaseHelper
 
     private lateinit var current_category: String
     private lateinit var urlHashCode: String
@@ -58,7 +52,7 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         }
 
         timeStart = System.currentTimeMillis()
-        urlHashCode = Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
+        urlHashCode = EncryptionHelper.getSHA1(headlines.url)
 
         if (headlines.category == null || headlines.category == "") {
             current_category = "other"
@@ -66,15 +60,21 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             current_category = headlines.category!!
         }
 
-        bottomNavigationView = requireActivity().findViewById(R.id.bottom_nav)
-
-        initDatabase()
+        databaseHelper = DatabaseHelper(requireContext())
         getPasswordFromDatabase()
-
-        userStatsReference.child(current_category).child(urlHashCode).child("time").get()
+        databaseHelper.userStatsReference.child(current_category).child(urlHashCode).child("time")
+            .get()
             .addOnCompleteListener {
                 timeInDatabase = it.result.getValue(Long::class.java)
             }
+
+        initView()
+
+        return v
+    }
+
+    private fun initView() {
+        bottomNavigationView = requireActivity().findViewById(R.id.bottom_nav)
 
         webView = v.findViewById(R.id.web_view_open_bookmarks_news)
         webView.webViewClient = WebViewClient()
@@ -96,7 +96,6 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             true
         }
 
-
         requireActivity().onBackPressedDispatcher.addCallback {
             bottomNavigationView.selectedItemId = R.id.bookmarksFragment
             requireActivity().supportFragmentManager
@@ -104,8 +103,6 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
                 .replace(R.id.fragment_container, BookmarksFragment())
                 .commit()
         }
-
-        return v
     }
 
     private fun openSecurityDialog() {
@@ -118,7 +115,7 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     }
 
     private fun getPasswordFromDatabase() {
-        currentUserReference.addValueEventListener(object : ValueEventListener {
+        databaseHelper.currentUserReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 password = snapshot.child("notesPassword").getValue(String::class.java)
             }
@@ -144,19 +141,8 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             time += timeInDatabase!!
         }
         val newsStats = NewsHeadlinesStats(headlines, time)
-        userStatsReference.child(current_category).child(urlHashCode).setValue(newsStats)
-    }
-
-    private fun initDatabase() {
-        auth = FirebaseAuth.getInstance()
-        user = auth.currentUser
-        if (user != null) {
-            firebaseDatabase = FirebaseDatabase.getInstance()
-            usersReference = firebaseDatabase.getReference("users")
-            currentUserReference = usersReference.child(user!!.uid)
-            userBookmarksReference = currentUserReference.child("bookmarks")
-            userStatsReference = currentUserReference.child("stats")
-        }
+        databaseHelper.userStatsReference.child(current_category).child(urlHashCode)
+            .setValue(newsStats)
     }
 
     private fun openNotes() {
@@ -169,10 +155,7 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     }
 
     private fun deleteFromBookmarks() {
-        val urlHashCode =
-            Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
-        userBookmarksReference.child(urlHashCode).removeValue()
-        Toast.makeText(requireContext(), "Bookmark deleted", Toast.LENGTH_SHORT).show()
+        databaseHelper.deleteFromBookmarks(headlines)
     }
 
     private fun shareLink() {

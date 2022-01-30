@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.TextUtils
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -13,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app.*
@@ -21,99 +21,19 @@ import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.Source
 import com.example.news_app.Models.SourcesApiResponse
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.common.hash.Hashing
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import org.checkerframework.checker.units.qual.s
-import java.nio.charset.Charset
 
-class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener*/ {
+class NewsEverythingFragment : Fragment(), SelectListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: NewsAdapter
 
     private val options: Array<String> = arrayOf("Language", "Sources")
 
-    private val countriesMap = mapOf(
-        "Any" to null,
-        "Argentina" to "ar",
-        "Australia" to "au",
-        "Austria" to "at",
-        "Belgium" to "be",
-        "Brazil" to "br",
-        "Bulgaria" to "bg",
-        "Canada" to "ca",
-        "China" to "cn",
-        "Colombia" to "co",
-        "Cuba" to "cu",
-        "Czechia" to "cz",
-        "Egypt" to "eg",
-        "France" to "fr",
-        "Germany" to "de",
-        "Greece" to "gr",
-        "Honk Kong" to "hk",
-        "Hungary" to "hu",
-        "Indonesia" to "id",
-        "Ireland" to "ie",
-        "Israel" to "il",
-        "India" to "in",
-        "Italy" to "it",
-        "Japan" to "jp",
-        "Korea" to "kr",
-        "Latvia" to "lv",
-        "Lithuania" to "lt",
-        "Morocco" to "ma",
-        "Mexico" to "mx",
-        "Malaysia" to "my",
-        "Nigeria" to "ng",
-        "Netherlands" to "nl",
-        "Norway" to "no",
-        "New Zealand" to "nz",
-        "Philippines" to "ph",
-        "Poland" to "pl",
-        "Portugal" to "pt",
-        "Romania" to "ro",
-        "Russia" to "ru",
-        "Serbia" to "rs",
-        "Saudi Arabia" to "sa",
-        "Sweden" to "se",
-        "Singapore" to "sg",
-        "Slovenia" to "si",
-        "Slovakia" to "sk",
-        "South Africa" to "za",
-        "Switzerland" to "ch",
-        "Thailand" to "th",
-        "Turkey" to "tr",
-        "Taiwan" to "tw",
-        "Ukraine" to "ua",
-        "United Arab Emirates" to "ae",
-        "United Kingdom of Great Britain and Northern Ireland" to "gb",
-        "USA" to "us",
-        "Venezuela" to "ve"
-    )
-
-    private val languagesMap = mapOf(
-        "Any" to null,
-        "Arabic" to "ar",
-        "Chinese" to "zh",
-        "Dutch" to "nl",
-        "English" to "en",
-        "French" to "fr",
-        "German" to "de",
-        "Hebrew" to "he",
-        "Italian" to "it",
-        "Norwegian" to "no",
-        "Portuguese" to "pt",
-        "Russian" to "ru",
-        "Sami" to "se",
-        "Spanish" to "es",
-    )
+    private val countriesMap = NewsOptionsHelper.countries
+    private val languagesMap = NewsOptionsHelper.languages
 
     private var current_language_pair: Pair<String, String?> = ("English" to "en")
     private var language_num: Int = 1
-
 
     private var sources_list: MutableList<Source> = mutableListOf<Source>()
     private lateinit var sourcesMap: MutableMap<String, String?>
@@ -123,15 +43,9 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
     private lateinit var btn_options: ImageButton
     private lateinit var searchView: SearchView
 
-    private lateinit var current_view: View
+    private lateinit var v: View
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var usersReference: DatabaseReference
-    private lateinit var currentUserReference: DatabaseReference
-    private lateinit var userBookmarksReference: DatabaseReference
-    private lateinit var userStatsReference: DatabaseReference
-    private var user: FirebaseUser? = null
+    private lateinit var databaseHelper: DatabaseHelper
 
     private lateinit var toolbar: Toolbar
     private lateinit var spinner: Spinner
@@ -147,18 +61,18 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        current_view =
+        v =
             LayoutInflater.from(context)
                 .inflate(R.layout.fragment_news_everything, container, false)
 
         if(!InternetConnection.isConnected()){
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-            return current_view
+            return v
         }
 
         initView()
-        initDatabase()
 
+        databaseHelper = DatabaseHelper(requireContext())
         getUserSettings()
 
         getSources(
@@ -173,7 +87,7 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
             language = current_language_pair.second
         )
 
-        return current_view
+        return v
     }
 
     private fun getSources(
@@ -219,7 +133,7 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
     }
 
     private fun initView() {
-        searchView = current_view.findViewById(R.id.search_view)
+        searchView = v.findViewById(R.id.search_view)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 showNewsEverything(
@@ -235,8 +149,8 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
             }
         })
 
-        toolbar = current_view.findViewById(R.id.toolbar)
-        spinner = current_view.findViewById(R.id.spinner)
+        toolbar = v.findViewById(R.id.toolbar)
+        spinner = v.findViewById(R.id.spinner)
 
         val arrayAdapter = ArrayAdapter<String>(
             requireContext(),
@@ -261,7 +175,7 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
             override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
 
-        btn_options = current_view.findViewById(R.id.btn_options)
+        btn_options = v.findViewById(R.id.btn_options)
         btn_options.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Options")
@@ -274,18 +188,6 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
                 .setPositiveButton("Ok", null)
                 .setNegativeButton("Cancel", null)
                 .show() //TODO
-        }
-    }
-
-    private fun initDatabase() {
-        auth = FirebaseAuth.getInstance()
-        user = auth.currentUser
-        if (user != null) {
-            firebaseDatabase = FirebaseDatabase.getInstance()
-            usersReference = firebaseDatabase.getReference("users")
-            currentUserReference = usersReference.child(user!!.uid)
-            userBookmarksReference = currentUserReference.child("bookmarks")
-            userStatsReference = currentUserReference.child("stats")
         }
     }
 
@@ -321,10 +223,7 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
 
     private fun addToBookmarks(item: Int) {
         val headline = adapter.headlines[item]
-        val urlHashCode =
-            Hashing.sha1().hashString(headline.url, Charset.defaultCharset()).toString()
-        userBookmarksReference.child(urlHashCode).setValue(headline)
-        Toast.makeText(requireContext(), "Bookmark added", Toast.LENGTH_SHORT).show()
+        databaseHelper.addToBookmarks(headline)
     }
 
     private fun openLanguageSettings() {
@@ -470,7 +369,7 @@ class NewsEverythingFragment : Fragment(), SelectListener /*View.OnClickListener
 
     private fun showNews(newsHeadlinesList: List<NewsHeadlines>) {
         if (context != null) {
-            recyclerView = current_view.findViewById(R.id.news_recyclerView)
+            recyclerView = v.findViewById(R.id.news_recyclerView)
             recyclerView.setHasFixedSize(true)
             recyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
             adapter = NewsAdapter(requireContext(), newsHeadlinesList, this)

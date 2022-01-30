@@ -13,21 +13,16 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.news_app.InternetConnection
+import com.example.news_app.*
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
 import com.example.news_app.Models.Source
-import com.example.news_app.NewsInStatsAdapter
-import com.example.news_app.R
-import com.example.news_app.SelectInStatsListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.common.hash.Hashing
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.*
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import org.apache.commons.lang3.time.DurationFormatUtils
-import java.nio.charset.Charset
 
 class StatsFragment : Fragment(), SelectInStatsListener {
     private lateinit var v: View
@@ -35,12 +30,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var textView_total_time: TextView
 
-    private lateinit var auth: FirebaseAuth
-    private var user: FirebaseUser? = null
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var usersReference: DatabaseReference
-    private lateinit var currentUserReference: DatabaseReference
-    private lateinit var userStatsReference: DatabaseReference
+    private lateinit var databaseHelper: DatabaseHelper
 
     private lateinit var stats: ArrayList<NewsHeadlinesStats>
     private var totalTime: Long = 0
@@ -72,8 +62,6 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     private var current_checked_sources: BooleanArray = booleanArrayOf()
     private lateinit var sourcesSet: MutableSet<Source>
     private lateinit var sourcesMap: MutableMap<String, String?>
-    private var allNewsList = mutableListOf<NewsHeadlinesStats>()
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -81,7 +69,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     ): View? {
         v = LayoutInflater.from(context).inflate(R.layout.fragment_stats, container, false)
 
-        if(!InternetConnection.isConnected()){
+        if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
             return v
         }
@@ -89,7 +77,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         current_category = "all"
         stats = arrayListOf()
 
-        initDatabase()
+        databaseHelper = DatabaseHelper(requireContext())
         initView()
 
         getTotalTime()
@@ -100,17 +88,18 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         getAllNews()
         // TODO async
 
-
         return v
     }
 
     private fun getTotalTime() {
-        userStatsReference.child("total time").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                totalTime = snapshot.getValue(Long::class.java) ?: 0
-            }
-            override fun onCancelled(error: DatabaseError) {}
-        })
+        databaseHelper.userStatsReference.child("total time")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    totalTime = snapshot.getValue(Long::class.java) ?: 0
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
     }
 
     private fun getAllNews() {
@@ -123,21 +112,23 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     private fun setCategoryListener(category: String, clearStats: Boolean = true) {
         var cat: String = if (category == "") "other" else category
 
-        userStatsReference.child(cat).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (clearStats) {
-                    stats.clear()
+        databaseHelper.userStatsReference.child(cat)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (clearStats) {
+                        stats.clear()
+                    }
+                    for (dataSnapshot in snapshot.children) {
+                        val headline = dataSnapshot.getValue(NewsHeadlinesStats::class.java)
+                        stats.add(headline!!)
+                        sourcesSet.add(headline.source!!)
+                    }
+                    getTotalTime()
+                    showNews(stats)
                 }
-                for (dataSnapshot in snapshot.children) {
-                    val headline = dataSnapshot.getValue(NewsHeadlinesStats::class.java)
-                    stats.add(headline!!)
-                    sourcesSet.add(headline.source!!)
-                }
-                getTotalTime()
-                showNews(stats)
-            }
-            override fun onCancelled(error: DatabaseError) {}
-        })
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -165,21 +156,9 @@ class StatsFragment : Fragment(), SelectInStatsListener {
 
     private fun deleteFromBookmarks(item: Int) {
         val headline = adapter.headlines[item]
-        val urlHashCode =
-            Hashing.sha1().hashString(headline.url, Charset.defaultCharset()).toString()
-        userStatsReference.child(urlHashCode).removeValue()
+        val urlHashCode = EncryptionHelper.getSHA1(headline.url)
+        databaseHelper.userStatsReference.child(urlHashCode).removeValue()
         Toast.makeText(requireContext(), "Bookmark deleted", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun initDatabase() {
-        auth = FirebaseAuth.getInstance()
-        user = auth.currentUser
-        if (user != null) {
-            firebaseDatabase = FirebaseDatabase.getInstance()
-            usersReference = firebaseDatabase.getReference("users")
-            currentUserReference = usersReference.child(user!!.uid)
-            userStatsReference = currentUserReference.child("stats")
-        }
     }
 
     private fun initView() {
@@ -241,7 +220,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
 
     private fun openSourceSettings() {
         sourcesMap = mutableMapOf()
-        if(current_checked_sources.size != sourcesSet.size){
+        if (current_checked_sources.size != sourcesSet.size) {
             current_checked_sources = BooleanArray(sourcesSet.size)
         }
 
@@ -264,10 +243,10 @@ class StatsFragment : Fragment(), SelectInStatsListener {
                 val selectedSources = getSelectedSources()
                 getStatsWithSelectedSources(selectedSources)
             }
-            .setNegativeButton("Cancel"){ dialog, which ->
+            .setNegativeButton("Cancel") { dialog, which ->
                 current_checked_sources = prev_checked_sources.copyOf()
             }
-            .setNeutralButton("Reset"){dialog, which ->
+            .setNeutralButton("Reset") { dialog, which ->
                 resetSources()
             }
             .setOnCancelListener {
@@ -277,7 +256,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     }
 
     private fun resetSources() {
-        for(i in current_checked_sources.indices) {
+        for (i in current_checked_sources.indices) {
             current_checked_sources[i] = false
         }
     }
@@ -287,8 +266,8 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         val sourcesNamesArray = sourcesMap.keys.toTypedArray()
         val sourcesIdsArray = sourcesMap.values.toTypedArray()
 
-        for(i in sourcesNamesArray.indices){
-            if(current_checked_sources[i]){
+        for (i in sourcesNamesArray.indices) {
+            if (current_checked_sources[i]) {
                 selectedSources.add(Source(name = sourcesNamesArray[i], id = sourcesIdsArray[i]))
             }
         }
@@ -296,21 +275,21 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         return selectedSources
     }
 
-    private fun getStatsWithSelectedSources(selectedSources: List<Source>){
+    private fun getStatsWithSelectedSources(selectedSources: List<Source>) {
         val resultList = mutableListOf<NewsHeadlinesStats>()
         val selectedSourcesNames = mutableListOf<String>()
         val selectedSourcesIds = mutableListOf<String?>()
-        selectedSources.forEach{
+        selectedSources.forEach {
             selectedSourcesIds.add(it.id)
             selectedSourcesNames.add(it.name)
         }
-//        println(stats)
-        for(news in stats){
+
+        for (news in stats) {
             val id = news.source?.id
             val name = news.source?.name
-            if(id != null && id != "" && selectedSourcesIds.contains(id)){
+            if (id != null && id != "" && selectedSourcesIds.contains(id)) {
                 resultList.add(news)
-            } else if(name != null && name != "" && selectedSourcesNames.contains(name)){
+            } else if (name != null && name != "" && selectedSourcesNames.contains(name)) {
                 resultList.add(news)
             }
         }
@@ -333,7 +312,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         textView_total_time.text = time
     }
 
-    override fun onNewsClicked(headlines: NewsHeadlinesStats) { // TODO category doesnt work
+    override fun onNewsClicked(headlines: NewsHeadlinesStats) {
         val headlns = NewsHeadlines(
             source = headlines.source,
             author = headlines.author ?: "",

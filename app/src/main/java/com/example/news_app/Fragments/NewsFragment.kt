@@ -5,14 +5,14 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.TextUtils
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news_app.*
@@ -20,83 +20,16 @@ import com.example.news_app.Models.NewsApiResponse
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.Source
 import com.example.news_app.Models.SourcesApiResponse
-import com.example.news_app.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.common.hash.Hashing
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.*
-import java.nio.charset.Charset
 
 
 class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: NewsAdapter
 
-    private val options: Array<String> = arrayOf("Country", "Sources")
-
-    private val countriesMap = mapOf(
-        "Any" to null,
-        "Argentina" to "ar",
-        "Australia" to "au",
-        "Austria" to "at",
-        "Belgium" to "be",
-        "Brazil" to "br",
-        "Bulgaria" to "bg",
-        "Canada" to "ca",
-        "China" to "cn",
-        "Colombia" to "co",
-        "Cuba" to "cu",
-        "Czechia" to "cz",
-        "Egypt" to "eg",
-        "France" to "fr",
-        "Germany" to "de",
-        "Greece" to "gr",
-        "Honk Kong" to "hk",
-        "Hungary" to "hu",
-        "Indonesia" to "id",
-        "Ireland" to "ie",
-        "Israel" to "il",
-        "India" to "in",
-        "Italy" to "it",
-        "Japan" to "jp",
-        "Korea" to "kr",
-        "Latvia" to "lv",
-        "Lithuania" to "lt",
-        "Morocco" to "ma",
-        "Mexico" to "mx",
-        "Malaysia" to "my",
-        "Nigeria" to "ng",
-        "Netherlands" to "nl",
-        "Norway" to "no",
-        "New Zealand" to "nz",
-        "Philippines" to "ph",
-        "Poland" to "pl",
-        "Portugal" to "pt",
-        "Romania" to "ro",
-        "Russia" to "ru",
-        "Serbia" to "rs",
-        "Saudi Arabia" to "sa",
-        "Sweden" to "se",
-        "Singapore" to "sg",
-        "Slovenia" to "si",
-        "Slovakia" to "sk",
-        "South Africa" to "za",
-        "Switzerland" to "ch",
-        "Thailand" to "th",
-        "Turkey" to "tr",
-        "Taiwan" to "tw",
-        "Ukraine" to "ua",
-        "United Arab Emirates" to "ae",
-        "United Kingdom of Great Britain and Northern Ireland" to "gb",
-        "USA" to "us",
-        "Venezuela" to "ve"
-    )
+    private val countriesMap = NewsOptionsHelper.countries
     private var current_country_pair: Pair<String, String?> = ("USA" to "us")
-
     private var country_num: Int = 6
-
-//    private var headlinesSelected: Boolean = true
 
     private lateinit var current_category: String
 
@@ -105,22 +38,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     private var current_checked_sources: BooleanArray = booleanArrayOf()
     private var string_sources: String? = null
 
-    private val languagesMap = mapOf(
-        "Any" to null,
-        "Arabic" to "ar",
-        "Chinese" to "zh",
-        "Dutch" to "nl",
-        "English" to "en",
-        "French" to "fr",
-        "German" to "de",
-        "Hebrew" to "he",
-        "Italian" to "it",
-        "Norwegian" to "no",
-        "Portuguese" to "pt",
-        "Russian" to "ru",
-        "Sami" to "se",
-        "Spanish" to "es",
-    )
+    private val languagesMap = NewsOptionsHelper.languages
 
     private lateinit var btn_business: Button
     private lateinit var btn_entertainment: Button
@@ -134,13 +52,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private lateinit var v: View
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var usersReference: DatabaseReference
-    private lateinit var currentUserReference: DatabaseReference
-    private lateinit var userBookmarksReference: DatabaseReference
-    private lateinit var userStatsReference: DatabaseReference
-    private var user: FirebaseUser? = null
+    private lateinit var databaseHelper: DatabaseHelper
 
     private lateinit var toolbar: Toolbar
     private lateinit var spinner: Spinner
@@ -157,32 +69,29 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     ): View? {
         v = LayoutInflater.from(context).inflate(R.layout.fragment_news, container, false)
 
-        if(!InternetConnection.isConnected()){
+        if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
             return v
         }
 
         current_category = "general"
-
         initView()
-        initDatabase()
-
+        databaseHelper = DatabaseHelper(requireContext())
         getUserSettings()
 
-        if(default_category == null && default_country == null){
+        if (default_category == null && default_country == null) {
             getSources(
                 category = "general",
                 language = default_language,
                 country = default_country
             )
-        } else{
+        } else {
             getSources(
                 category = default_category,
                 language = default_language,
                 country = default_country
             )
         }
-
 
         showNewsHeadlines()
 
@@ -305,6 +214,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         btn_technology.setOnClickListener(this)
 
         btn_options.setOnClickListener {
+            val options = arrayOf("Country", "Sources")
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Options")
                 .setItems(options) { dialog, which ->
@@ -324,18 +234,6 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
             .beginTransaction()
             .replace(R.id.fragment_container, NewsEverythingFragment())
             .commit()
-    }
-
-    private fun initDatabase() {
-        auth = FirebaseAuth.getInstance()
-        user = auth.currentUser
-        if (user != null) {
-            firebaseDatabase = FirebaseDatabase.getInstance()
-            usersReference = firebaseDatabase.getReference("users")
-            currentUserReference = usersReference.child(user!!.uid)
-            userBookmarksReference = currentUserReference.child("bookmarks")
-            userStatsReference = currentUserReference.child("stats")
-        }
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -364,10 +262,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
     private fun addToBookmarks(item: Int) {
         val headline = adapter.headlines[item]
         headline.category = current_category
-        val urlHashCode =
-            Hashing.sha1().hashString(headline.url, Charset.defaultCharset()).toString()
-        userBookmarksReference./*child(current_category!!).*/child(urlHashCode).setValue(headline)
-        Toast.makeText(requireContext(), "Bookmark added", Toast.LENGTH_SHORT).show()
+        databaseHelper.addToBookmarks(headline, current_category)
     }
 
     private fun openCountrySettings() {
@@ -405,7 +300,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         category: String? = default_category,
         query: String? = null,
         sources: String? = null,
-        country: String? = /*current_country_pair.second */ default_country
+        country: String? = default_country
     ) {
         val manager = RequestManager(requireContext())
         manager.getNewsHeadlines(

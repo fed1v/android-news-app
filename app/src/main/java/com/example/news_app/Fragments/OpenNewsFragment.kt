@@ -3,23 +3,19 @@ package com.example.news_app.Fragments
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import androidx.fragment.app.Fragment
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
+import com.example.news_app.DatabaseHelper
+import com.example.news_app.EncryptionHelper
 import com.example.news_app.InternetConnection
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.NewsHeadlinesStats
 import com.example.news_app.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.common.hash.Hashing
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import java.nio.charset.Charset
 
 class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var v: View
@@ -27,13 +23,7 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     private lateinit var toolbar: Toolbar
     private lateinit var bottomNavigationView: BottomNavigationView
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var usersReference: DatabaseReference
-    private lateinit var currentUserReference: DatabaseReference
-    private lateinit var userBookmarksReference: DatabaseReference
-    private lateinit var userStatsReference: DatabaseReference
-    private var user: FirebaseUser? = null
+    private lateinit var databaseHelper: DatabaseHelper
 
     private lateinit var current_category: String
     private lateinit var urlHashCode: String
@@ -48,27 +38,27 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     ): View {
         v = inflater.inflate(R.layout.fragment_open_news, container, false)
 
-        if(!InternetConnection.isConnected()){
+        if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
             return v
         }
 
         timeStart = System.currentTimeMillis()
+        databaseHelper = DatabaseHelper(requireContext(), headlines)
         initView()
-        initDatabase()
 
-
-        if(headlines.category == null || headlines.category == ""){
+        if (headlines.category == null || headlines.category == "") {
             current_category = "other"
-        } else{
+        } else {
             current_category = headlines.category!!
         }
 
-        urlHashCode = Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
+        urlHashCode = EncryptionHelper.getSHA1(headlines.url)
 
-        userStatsReference.child(current_category).child(urlHashCode).child("time").get().addOnCompleteListener {
-            timeInDatabase = it.result.getValue(Long::class.java)
-        }
+        databaseHelper.userStatsReference.child(current_category).child(urlHashCode).child("time")
+            .get().addOnCompleteListener {
+                timeInDatabase = it.result.getValue(Long::class.java)
+            }
 
         return v
     }
@@ -98,9 +88,9 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     }
 
     override fun onDestroy() {
-        if(!InternetConnection.isConnected()){
+        if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-        } else{
+        } else {
             timeEnd = System.currentTimeMillis()
             addNewsToStats()
         }
@@ -114,26 +104,12 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             time += timeInDatabase!!
         }
         val newsStats = NewsHeadlinesStats(headlines, time)
-        userStatsReference.child(current_category).child(urlHashCode).setValue(newsStats)
-    }
-
-    private fun initDatabase() {
-        auth = FirebaseAuth.getInstance()
-        user = auth.currentUser
-        if (user != null) {
-            firebaseDatabase = FirebaseDatabase.getInstance()
-            usersReference = firebaseDatabase.getReference("users")
-            currentUserReference = usersReference.child(user!!.uid)
-            userBookmarksReference = currentUserReference.child("bookmarks")
-            userStatsReference = currentUserReference.child("stats")
-        }
+        databaseHelper.userStatsReference.child(current_category).child(urlHashCode)
+            .setValue(newsStats)
     }
 
     private fun addToBookmarks() {
-        val urlHashCode =
-            Hashing.sha1().hashString(headlines.url, Charset.defaultCharset()).toString()
-        userBookmarksReference.child(urlHashCode).setValue(headlines)
-        Toast.makeText(requireContext(), "Bookmark added", Toast.LENGTH_SHORT).show()
+        databaseHelper.addToBookmarks(headlines)
     }
 
     private fun shareLink() {
