@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.DialogFragment
+import com.example.news_app.EncryptionHelper
 import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.R
 import com.google.firebase.auth.FirebaseAuth
@@ -119,7 +120,8 @@ class NotesSecurityDialogFragment(var headlines: NewsHeadlines) : DialogFragment
     }
 
     fun signInSuccessful(): Boolean {
-        if (password == null || password == et_password.text.toString()) {
+        val passwordHash = EncryptionHelper.getSHA256(et_password.text.toString())
+        if (password == null || password == passwordHash) {
             return true
         }
         return false

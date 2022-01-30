@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import com.example.news_app.EncryptionHelper
 import com.example.news_app.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -47,7 +48,8 @@ class PasswordDialogFragment : DialogFragment() {
 
         btn_confirm.setOnClickListener {
             val pass = et_password.text.toString()
-            if (!password.isNullOrBlank() && (pass == password)) {
+            val passHash = EncryptionHelper.getSHA256(pass)
+            if (!password.isNullOrBlank() && (passHash == password)) {
                 deletePasswordFromDatabase()
             } else {
                 Toast.makeText(requireContext(), "Wrong password", Toast.LENGTH_SHORT).show()

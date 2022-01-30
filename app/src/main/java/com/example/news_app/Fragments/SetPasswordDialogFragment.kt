@@ -1,7 +1,6 @@
 package com.example.news_app.Fragments
 
 import android.os.Bundle
-import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import com.example.news_app.EncryptionHelper
 import com.example.news_app.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -50,7 +50,8 @@ class SetPasswordDialogFragment : DialogFragment() {
             val confirm_password = et_confirm_password.text.toString()
 
             if (!password.isNullOrBlank() && (password == confirm_password)) {
-                addPasswordToDatabase(password)
+                val passwordHash = EncryptionHelper.getSHA256(password)
+                addPasswordToDatabase(passwordHash)
                 SettingsFragment.switch_notes_security.isChecked = true
             } else {
                 SettingsFragment.switch_notes_security.isChecked = false

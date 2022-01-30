@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import com.example.news_app.EncryptionHelper
 import com.example.news_app.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -56,9 +57,12 @@ class ChangePasswordDialogFragment : DialogFragment() {
             val new_password = et_new_password.text.toString()
             val confirm_password = et_confirm_password.text.toString()
 
-            if (!password.isNullOrBlank() && (password == old_password)) {
+            val oldPasswordHash = EncryptionHelper.getSHA256(old_password)
+
+            if (!password.isNullOrBlank() && (password == oldPasswordHash)) {
                 if (!new_password.isNullOrBlank() && (new_password == confirm_password)) {
-                    addNewPasswordToDatabase(new_password)
+                    val newPasswordHash = EncryptionHelper.getSHA256(new_password)
+                    addNewPasswordToDatabase(newPasswordHash)
                     Toast.makeText(context, "Password changed", Toast.LENGTH_SHORT).show()
                     dismiss()
                 } else {
@@ -76,7 +80,6 @@ class ChangePasswordDialogFragment : DialogFragment() {
         }
 
         btn_cancel.setOnClickListener {
-            println("Cancel")
             dismiss()
         }
 
