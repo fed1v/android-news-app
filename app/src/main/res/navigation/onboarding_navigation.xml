@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.example.news_app.Fragments.SplashFragment"
+        android:name="com.example.news_app.Onboarding.SplashFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash" >
         <action
@@ -41,7 +41,7 @@
 
     <activity
         android:id="@+id/onBoardingActivity"
-        android:name="com.example.news_app.OnBoardingActivity"
+        android:name="com.example.news_app.Onboarding.OnBoardingActivity"
         android:label="OnBoardingActivity"
         />
 </navigation>

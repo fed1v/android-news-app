@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
-import com.example.news_app.DatabaseHelper
+import com.example.news_app.Helpers.DatabaseHelper
 import com.example.news_app.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 

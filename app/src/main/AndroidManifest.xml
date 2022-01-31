@@ -18,14 +18,14 @@
         android:theme="@style/Theme.Newsappdemo"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".OnBoardingActivity"
+            android:name=".Onboarding.OnBoardingActivity"
             android:exported="true"
             android:noHistory="true">
 
         </activity>
 
         <service
-            android:name=".NotificationIntentService"
+            android:name=".Notifications.NotificationIntentService"
             android:enabled="true"
             android:exported="false" />
 
@@ -64,7 +64,7 @@
         </activity>
 
         <receiver
-            android:name=".AlarmReceiver"
+            android:name=".Notifications.AlarmReceiver"
             android:exported="false"
             android:process=":remote">
             <intent-filter>
@@ -73,7 +73,7 @@
         </receiver>
 
         <receiver
-            android:name=".NotificationServiceStarterReceiver"
+            android:name=".Notifications.NotificationServiceStarterReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

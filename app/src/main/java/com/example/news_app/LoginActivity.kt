@@ -7,6 +7,8 @@ import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.news_app.Helpers.InternetConnection
+import com.example.news_app.Onboarding.OnBoardingActivity
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback

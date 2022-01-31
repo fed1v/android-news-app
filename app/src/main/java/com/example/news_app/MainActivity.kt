@@ -7,7 +7,11 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.news_app.Fragments.*
+import com.example.news_app.Bookmarks.BookmarksFragment
+import com.example.news_app.Helpers.DatabaseHelper
+import com.example.news_app.Helpers.InternetConnection
+import com.example.news_app.News.NewsFragment
+import com.example.news_app.Stats.StatsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
