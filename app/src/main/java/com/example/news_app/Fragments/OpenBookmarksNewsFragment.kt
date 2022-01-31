@@ -48,7 +48,6 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
 
         if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-            return v
         }
 
         timeStart = System.currentTimeMillis()
@@ -62,24 +61,24 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
 
         databaseHelper = DatabaseHelper(requireContext())
         getPasswordFromDatabase()
+        getTime()
+        initView()
+        return v
+    }
+
+    private fun getTime() {
         databaseHelper.userStatsReference.child(current_category).child(urlHashCode).child("time")
             .get()
             .addOnCompleteListener {
                 timeInDatabase = it.result.getValue(Long::class.java)
             }
-
-        initView()
-
-        return v
     }
 
     private fun initView() {
         bottomNavigationView = requireActivity().findViewById(R.id.bottom_nav)
-
         webView = v.findViewById(R.id.web_view_open_bookmarks_news)
         webView.webViewClient = WebViewClient()
         webView.loadUrl(headlines.url)
-
         toolbar = v.findViewById(R.id.toolbar_open_bookmarks_news)
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -95,7 +94,6 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
             }
             true
         }
-
         requireActivity().onBackPressedDispatcher.addCallback {
             bottomNavigationView.selectedItemId = R.id.bookmarksFragment
             requireActivity().supportFragmentManager

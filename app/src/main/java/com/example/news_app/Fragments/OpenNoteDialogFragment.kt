@@ -29,10 +29,8 @@ class OpenNoteDialogFragment(var note: Note, var headlines: NewsHeadlines) : Dia
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.dialog_fragment_open_note, container, false)
-
         databaseHelper = DatabaseHelper(requireContext(), headlines)
         initView()
-
         return v
     }
 
@@ -40,7 +38,6 @@ class OpenNoteDialogFragment(var note: Note, var headlines: NewsHeadlines) : Dia
         btn_delete = v.findViewById(R.id.btn_delete)
         btn_save = v.findViewById(R.id.btn_save)
         btn_cancel = v.findViewById(R.id.btn_cancel)
-
         et_title = v.findViewById(R.id.et_title)
         et_description = v.findViewById(R.id.et_description)
 
@@ -51,14 +48,12 @@ class OpenNoteDialogFragment(var note: Note, var headlines: NewsHeadlines) : Dia
             deleteNote(note.createdTime)
             dismiss()
         }
-
         btn_save.setOnClickListener {
             val title = et_title.text.toString()
             val description = et_description.text.toString()
             saveNote(title, description, note.createdTime)
             dismiss()
         }
-
         btn_cancel.setOnClickListener {
             dismiss()
         }

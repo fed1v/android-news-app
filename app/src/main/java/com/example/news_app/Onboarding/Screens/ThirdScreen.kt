@@ -40,10 +40,8 @@ class ThirdScreen : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.fragment_third_screen, container, false)
-
         databaseHelper = DatabaseHelper(requireContext())
         initView()
-
         return v
     }
 
@@ -56,7 +54,6 @@ class ThirdScreen : Fragment() {
             findNavController().navigate(R.id.action_viewPagerFragment_to_mainActivity)
             onBoardingFinished()
         }
-
         btn_category.setOnClickListener {
             openCategorySettings()
         }

@@ -1,8 +1,5 @@
 package com.example.news_app.Fragments
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
@@ -35,24 +32,25 @@ import com.google.firebase.ktx.Firebase
 import java.util.*
 
 class SettingsFragment : Fragment() {
-    private lateinit var pendingIntent: PendingIntent
+    companion object {
+        lateinit var calendar: Calendar
+        lateinit var switch_notes_security: SwitchCompat
+    }
+
     private lateinit var v: View
     private lateinit var text_user_name: TextView
     private lateinit var text_user_email: TextView
-
     private lateinit var button_logout: Button
     private lateinit var button_language: Button
     private lateinit var button_country: Button
     private lateinit var button_category: Button
     private lateinit var button_select_time: Button
-    private lateinit var button_set_alarm: Button
-    private lateinit var button_cancel_alarm: Button
-
+    private lateinit var button_enable_notifications: Button
+    private lateinit var button_disable_notifications: Button
     private lateinit var btn_change_password: Button
 
     private var googleSignInAccount: GoogleSignInAccount? = null
     private var googleSignInClient: GoogleSignInClient? = null
-
     private lateinit var auth: FirebaseAuth
     private lateinit var firebaseDatabase: FirebaseDatabase
     private lateinit var usersReference: DatabaseReference
@@ -89,13 +87,6 @@ class SettingsFragment : Fragment() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var picker: MaterialTimePicker
 
-    companion object {
-        lateinit var calendar: Calendar
-        lateinit var switch_notes_security: SwitchCompat
-    }
-
-    private var alarmManager: AlarmManager? = null
-
     private var password: String? = null
     private var firstCheck = true
 
@@ -107,13 +98,11 @@ class SettingsFragment : Fragment() {
 
         if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-            return v
         }
 
         initDatabase()
         getUserSettings()
         getPasswordFromDatabase()
-
         initView()
 
         country_num = countriesMap.keys.indexOf(user_country)
@@ -180,38 +169,31 @@ class SettingsFragment : Fragment() {
         button_language = v.findViewById(R.id.btn_language)
         button_country = v.findViewById(R.id.btn_country)
         button_select_time = v.findViewById(R.id.btn_select_time)
-        button_set_alarm = v.findViewById(R.id.btn_set_alarm)
-        button_cancel_alarm = v.findViewById(R.id.btn_cancel_alarm)
-
+        button_enable_notifications = v.findViewById(R.id.btn_enable_notifications)
+        button_disable_notifications = v.findViewById(R.id.btn_disable_notifications)
         switch_notes_security = v.findViewById(R.id.switch_notes_security)
         btn_change_password = v.findViewById(R.id.btn_change_password)
 
         button_logout.setOnClickListener {
             logout()
         }
-
         button_category.setOnClickListener {
             openCategorySettings()
         }
-
         button_language.setOnClickListener {
             openLanguageSettings()
         }
-
         button_country.setOnClickListener {
             openCountrySettings()
         }
-
         button_select_time.setOnClickListener {
             selectTime()
         }
-
-        button_set_alarm.setOnClickListener {
+        button_enable_notifications.setOnClickListener {
             setAlarm()
         }
-
-        button_cancel_alarm.setOnClickListener {
-            cancelAlarm()  // TODO
+        button_disable_notifications.setOnClickListener {
+            cancelAlarm()
         }
 
         btn_change_password.setOnClickListener {
@@ -222,8 +204,6 @@ class SettingsFragment : Fragment() {
                 Toast.makeText(context, "Nothing to change", Toast.LENGTH_SHORT).show()
             }
         }
-
-
         switch_notes_security.setOnCheckedChangeListener { button, isChecked ->
             if (!firstCheck) {
                 if (isChecked) {
@@ -239,8 +219,6 @@ class SettingsFragment : Fragment() {
                 }
             }
         }
-
-
         requireActivity().onBackPressedDispatcher.addCallback {
             bottomNavigationView.selectedItemId = R.id.newsFragment
             activity?.supportFragmentManager
@@ -255,13 +233,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun cancelAlarm() {
-        val intent = Intent(activity, AlarmReceiver::class.java)
-        pendingIntent = PendingIntent.getBroadcast(activity, 0, intent, 0)
-        if (alarmManager == null) {
-            activity?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        }
-        alarmManager?.cancel(pendingIntent)
-        Toast.makeText(context, "Alarm canceled successfully", Toast.LENGTH_SHORT).show()
+        AlarmReceiver.cancelAlarm(requireContext())
     }
 
     private fun selectTime() {
@@ -271,14 +243,12 @@ class SettingsFragment : Fragment() {
             .setMinute(0)
             .setTitleText("Select notifications time")
             .build()
-
         picker.addOnPositiveButtonClickListener {
             val hour = picker.hour
             val minute = picker.minute
             println("$hour:$minute")
             setCalendar()
         }
-
         if (activity != null) {
             picker.show(requireActivity().supportFragmentManager, "NewsApp")
         }
@@ -333,7 +303,6 @@ class SettingsFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-
     }
 
     private fun changeLanguage() {
@@ -358,7 +327,6 @@ class SettingsFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-
     }
 
     private fun changeCategory() {

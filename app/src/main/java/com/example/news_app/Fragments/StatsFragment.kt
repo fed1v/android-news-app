@@ -29,12 +29,21 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     private lateinit var adapter: NewsInStatsAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var textView_total_time: TextView
+    private lateinit var btn_all: Button
+    private lateinit var btn_business: Button
+    private lateinit var btn_entertainment: Button
+    private lateinit var btn_general: Button
+    private lateinit var btn_health: Button
+    private lateinit var btn_other: Button
+    private lateinit var btn_science: Button
+    private lateinit var btn_sports: Button
+    private lateinit var btn_technology: Button
+    private lateinit var btn_sources: Button
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     private lateinit var databaseHelper: DatabaseHelper
-
     private lateinit var stats: ArrayList<NewsHeadlinesStats>
     private var totalTime: Long = 0
-    private lateinit var bottomNavigationView: BottomNavigationView
 
     val categories = listOf(
         "business",
@@ -47,18 +56,6 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         "other"
     )
     private lateinit var current_category: String
-
-    private lateinit var btn_all: Button
-    private lateinit var btn_business: Button
-    private lateinit var btn_entertainment: Button
-    private lateinit var btn_general: Button
-    private lateinit var btn_health: Button
-    private lateinit var btn_other: Button
-    private lateinit var btn_science: Button
-    private lateinit var btn_sports: Button
-    private lateinit var btn_technology: Button
-    private lateinit var btn_sources: Button
-
     private var current_checked_sources: BooleanArray = booleanArrayOf()
     private lateinit var sourcesSet: MutableSet<Source>
     private lateinit var sourcesMap: MutableMap<String, String?>
@@ -68,26 +65,17 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         savedInstanceState: Bundle?
     ): View? {
         v = LayoutInflater.from(context).inflate(R.layout.fragment_stats, container, false)
-
         if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-            return v
         }
-
         current_category = "all"
         stats = arrayListOf()
-
         databaseHelper = DatabaseHelper(requireContext())
         initView()
-
         getTotalTime()
         showTime()
-
         sourcesSet = mutableSetOf()
-
         getAllNews()
-        // TODO async
-
         return v
     }
 
@@ -110,8 +98,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
     }
 
     private fun setCategoryListener(category: String, clearStats: Boolean = true) {
-        var cat: String = if (category == "") "other" else category
-
+        val cat: String = if (category == "") "other" else category
         databaseHelper.userStatsReference.child(cat)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -265,13 +252,11 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         val selectedSources = mutableListOf<Source>()
         val sourcesNamesArray = sourcesMap.keys.toTypedArray()
         val sourcesIdsArray = sourcesMap.values.toTypedArray()
-
         for (i in sourcesNamesArray.indices) {
             if (current_checked_sources[i]) {
                 selectedSources.add(Source(name = sourcesNamesArray[i], id = sourcesIdsArray[i]))
             }
         }
-
         return selectedSources
     }
 
@@ -326,7 +311,7 @@ class StatsFragment : Fragment(), SelectInStatsListener {
         )
         parentFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, OpenNewsFragment(headlns)) // TODO
+            .replace(R.id.fragment_container, OpenNewsFragment(headlns))
             .commit()
     }
 }

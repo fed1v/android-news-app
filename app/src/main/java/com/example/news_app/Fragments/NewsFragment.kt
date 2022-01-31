@@ -24,8 +24,20 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
 class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
+    private lateinit var v: View
+    private lateinit var toolbar: Toolbar
+    private lateinit var spinner: Spinner
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: NewsAdapter
+    private lateinit var btn_business: Button
+    private lateinit var btn_entertainment: Button
+    private lateinit var btn_general: Button
+    private lateinit var btn_health: Button
+    private lateinit var btn_science: Button
+    private lateinit var btn_sports: Button
+    private lateinit var btn_technology: Button
+    private lateinit var btn_options: ImageButton
+    private lateinit var searchView: SearchView
 
     private val countriesMap = NewsOptionsHelper.countries
     private var current_country_pair: Pair<String, String?> = ("USA" to "us")
@@ -40,23 +52,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
 
     private val languagesMap = NewsOptionsHelper.languages
 
-    private lateinit var btn_business: Button
-    private lateinit var btn_entertainment: Button
-    private lateinit var btn_general: Button
-    private lateinit var btn_health: Button
-    private lateinit var btn_science: Button
-    private lateinit var btn_sports: Button
-    private lateinit var btn_technology: Button
-    private lateinit var btn_options: ImageButton
-    private lateinit var searchView: SearchView
-
-    private lateinit var v: View
-
     private lateinit var databaseHelper: DatabaseHelper
-
-    private lateinit var toolbar: Toolbar
-    private lateinit var spinner: Spinner
-
     private var userPreferences: SharedPreferences? = null
 
     private var default_category: String? = null
@@ -68,22 +64,18 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         savedInstanceState: Bundle?
     ): View? {
         v = LayoutInflater.from(context).inflate(R.layout.fragment_news, container, false)
-
         if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-            return v
         }
-
         current_category = "general"
         initView()
         databaseHelper = DatabaseHelper(requireContext())
         getUserSettings()
-
         if (default_category == null && default_country == null) {
             getSources(
                 category = "general",
                 language = default_language,
-                country = default_country
+                country = null
             )
         } else {
             getSources(
@@ -92,9 +84,7 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
                 country = default_country
             )
         }
-
         showNewsHeadlines()
-
         return v
     }
 

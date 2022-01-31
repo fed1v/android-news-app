@@ -10,8 +10,6 @@ class ViewPagerAdapter(
     var fragmentManager: FragmentManager,
     var lifecycle: Lifecycle
 ) : FragmentStateAdapter(fragmentManager, lifecycle) {
-
-
     override fun getItemCount(): Int = list.size
 
     override fun createFragment(position: Int): Fragment = list[position]

@@ -65,16 +65,11 @@ class NotificationIntentService : IntentService(NotificationIntentService::class
 
     private fun processStartNotification() {
         Log.v("Notifications", "processStartNotification")
-        println("processStartNotification")
-
         getNewsAndShow()
-
-        println("Notification send")
     }
 
     private fun processDeleteNotification() {
         Log.d("Notifications", "Notification deleted")
-        AlarmReceiver.setAlarm(this)
     }
 
     private fun getNewsAndShow() {
@@ -110,8 +105,6 @@ class NotificationIntentService : IntentService(NotificationIntentService::class
             override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {}
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
         }
-
-
         if (urlToImage != null && urlToImage != "") {
             try {
                 Picasso.setSingletonInstance(Picasso.Builder(this).build())

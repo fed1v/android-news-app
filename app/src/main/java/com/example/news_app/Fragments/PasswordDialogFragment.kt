@@ -17,13 +17,11 @@ import com.google.firebase.database.ValueEventListener
 
 class PasswordDialogFragment : DialogFragment() {
     private lateinit var v: View
-
     private lateinit var btn_confirm: Button
     private lateinit var btn_cancel: Button
     private lateinit var et_password: EditText
 
     private lateinit var databaseHelper: DatabaseHelper
-
     private var password: String? = null
 
     override fun onCreateView(
@@ -32,11 +30,9 @@ class PasswordDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.dialog_fragment_password, container, false)
-
         databaseHelper = DatabaseHelper(requireContext())
         getPasswordFromDatabase()
         initView()
-
         return v
     }
 
@@ -56,7 +52,6 @@ class PasswordDialogFragment : DialogFragment() {
             }
             dismiss()
         }
-
         btn_cancel.setOnClickListener {
             SettingsFragment.switch_notes_security.isChecked = true
             dismiss()

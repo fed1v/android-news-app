@@ -12,7 +12,7 @@ import com.example.news_app.Models.NewsHeadlines
 import com.example.news_app.Models.Note
 import com.example.news_app.R
 
-class AddNoteDialogFragment(var headlines: NewsHeadlines): DialogFragment() {
+class AddNoteDialogFragment(var headlines: NewsHeadlines) : DialogFragment() {
     private lateinit var v: View
     private lateinit var btn_ok: Button
     private lateinit var btn_cancel: Button
@@ -27,20 +27,16 @@ class AddNoteDialogFragment(var headlines: NewsHeadlines): DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         v = inflater.inflate(R.layout.dialog_fragment_add_note, container, false)
-
         databaseHelper = DatabaseHelper(requireContext(), headlines)
         initView()
-
         return v
     }
 
-    private fun initView(){
+    private fun initView() {
         btn_ok = v.findViewById(R.id.btn_ok)
         btn_cancel = v.findViewById(R.id.btn_cancel)
-
         et_title = v.findViewById(R.id.et_title)
         et_description = v.findViewById(R.id.et_description)
-
         btn_ok.setOnClickListener {
             val title = et_title.text.toString()
             val description = et_description.text.toString()
@@ -49,16 +45,16 @@ class AddNoteDialogFragment(var headlines: NewsHeadlines): DialogFragment() {
             dismiss()
             clearFields()
         }
-
         btn_cancel.setOnClickListener {
             dismiss()
             clearFields()
         }
     }
 
-    private fun addNoteToDatabase(title: String, description: String, createdTime: Long){
+    private fun addNoteToDatabase(title: String, description: String, createdTime: Long) {
         val id = Long.MAX_VALUE - createdTime
-        databaseHelper.userNotesReference.child(id.toString()).setValue(Note(title, description, createdTime))
+        databaseHelper.userNotesReference.child(id.toString())
+            .setValue(Note(title, description, createdTime))
     }
 
     private fun clearFields() {

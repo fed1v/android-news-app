@@ -26,7 +26,6 @@ import com.google.firebase.database.ValueEventListener
 
 class NotesSecurityDialogFragment(var headlines: NewsHeadlines) : DialogFragment() {
     private lateinit var v: View
-
     private lateinit var btn_confirm: Button
     private lateinit var btn_touch_id: Button
     private lateinit var et_password: EditText
@@ -58,11 +57,9 @@ class NotesSecurityDialogFragment(var headlines: NewsHeadlines) : DialogFragment
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.dialog_fragment_notes_security, container, false)
-
         databaseHelper = DatabaseHelper(requireContext(), headlines)
         getPasswordFromDatabase()
         initView()
-
         return v
     }
 
@@ -70,7 +67,6 @@ class NotesSecurityDialogFragment(var headlines: NewsHeadlines) : DialogFragment
         btn_confirm = v.findViewById(R.id.btn_confirm)
         btn_touch_id = v.findViewById(R.id.btn_touch_id)
         et_password = v.findViewById(R.id.et_password)
-
         btn_touch_id.setOnClickListener {
             if (checkBiometricSupport() && Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                 val biometricPrompt = BiometricPrompt.Builder(requireContext())
@@ -84,7 +80,6 @@ class NotesSecurityDialogFragment(var headlines: NewsHeadlines) : DialogFragment
                 )
             }
         }
-
         btn_confirm.setOnClickListener {
             if (signInSuccessful()) {
                 Toast.makeText(requireContext(), "Successful", Toast.LENGTH_SHORT).show()

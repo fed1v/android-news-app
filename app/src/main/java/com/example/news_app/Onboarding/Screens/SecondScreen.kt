@@ -18,7 +18,6 @@ class SecondScreen : Fragment() {
     private lateinit var v: View
     private lateinit var viewPager: ViewPager2
     private lateinit var next: TextView
-
     private lateinit var btn_language: Button
 
     private val languagesMap = NewsOptionsHelper.languages
@@ -31,10 +30,8 @@ class SecondScreen : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.fragment_second_screen, container, false)
-
         databaseHelper = DatabaseHelper(requireContext())
         initView()
-
         return v
     }
 
@@ -46,7 +43,6 @@ class SecondScreen : Fragment() {
         next.setOnClickListener {
             viewPager.currentItem = 2
         }
-
         btn_language.setOnClickListener {
             openLanguageSettings()
         }

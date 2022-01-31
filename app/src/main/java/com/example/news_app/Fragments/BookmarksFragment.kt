@@ -25,7 +25,6 @@ class BookmarksFragment : Fragment(), SelectListener {
     private lateinit var bottomNavigationView: BottomNavigationView
 
     private lateinit var databaseHelper: DatabaseHelper
-
     private lateinit var bookmarks: ArrayList<NewsHeadlines>
 
     override fun onCreateView(
@@ -33,16 +32,17 @@ class BookmarksFragment : Fragment(), SelectListener {
         savedInstanceState: Bundle?
     ): View? {
         v = LayoutInflater.from(context).inflate(R.layout.fragment_bookmarks, container, false)
-
         if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-            return v
         }
-
         bookmarks = arrayListOf()
         initView()
         databaseHelper = DatabaseHelper(requireContext())
+        showBookmarks()
+        return v
+    }
 
+    private fun showBookmarks() {
         databaseHelper.userBookmarksReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 bookmarks.removeAll { true }
@@ -55,8 +55,6 @@ class BookmarksFragment : Fragment(), SelectListener {
 
             override fun onCancelled(error: DatabaseError) {}
         })
-
-        return v
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {

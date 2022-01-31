@@ -19,14 +19,12 @@ import com.google.firebase.database.ValueEventListener
 
 class NotesFragment(var headlines: NewsHeadlines) : Fragment(), SelectInNotesListener {
     private lateinit var v: View
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: NotesAdapter
     private lateinit var btn_add: FloatingActionButton
     private lateinit var dialog: AddNoteDialogFragment
 
     private lateinit var databaseHelper: DatabaseHelper
-
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: NotesAdapter
-
     private lateinit var notes: ArrayList<Note>
 
     override fun onCreateView(
@@ -34,24 +32,18 @@ class NotesFragment(var headlines: NewsHeadlines) : Fragment(), SelectInNotesLis
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.fragment_notes, container, false)
-
         if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-            return v
         }
-
         databaseHelper = DatabaseHelper(requireContext())
         getNotes()
         initView()
-
         return v
     }
 
     private fun initView() {
         recyclerView = v.findViewById(R.id.recycler_view_notes)
-
         dialog = AddNoteDialogFragment(headlines)
-
         btn_add = v.findViewById(R.id.btn_add_note)
         btn_add.setOnClickListener {
             try {
@@ -60,7 +52,6 @@ class NotesFragment(var headlines: NewsHeadlines) : Fragment(), SelectInNotesLis
                 e.printStackTrace()
             }
         }
-
         activity?.onBackPressedDispatcher?.addCallback {
             activity?.supportFragmentManager?.popBackStack()
         }

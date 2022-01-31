@@ -1,9 +1,7 @@
 package com.example.news_app
 
-import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -14,40 +12,28 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
-    var showHeadlines: Boolean = true //TODO
 
     private lateinit var databaseHelper: DatabaseHelper
-
     private var timeStart: Long = 0
     private var timeEnd: Long = 0
     private var totalTimeInDatabase: Long? = 0
-
     private val CHANNEL_ID = "NewsApp"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         initView()
         databaseHelper = DatabaseHelper(this)
 
         if (databaseHelper.user == null) {
             startActivity(Intent(this, LoginActivity::class.java))
-            return
         }
 
         createNotificationChannel()
         saveUserSettingsToSharedPreferences()
-
-        if (showHeadlines) {
-            openFragment(NewsFragment())
-        } else {
-            openFragment(NewsEverythingFragment())
-        }
     }
 
     private fun saveUserSettingsToSharedPreferences() {
@@ -59,6 +45,7 @@ class MainActivity : AppCompatActivity() {
                     val country = snapshot.getValue(String::class.java)
                     editor.putString("User country", country)
                     editor.apply()
+                    openFragment(NewsFragment())
                 }
 
                 override fun onCancelled(error: DatabaseError) {}
@@ -129,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.bookmarksFragment -> BookmarksFragment()
                 R.id.statsFragment -> StatsFragment()
                 R.id.settingsFragment -> SettingsFragment()
-                else -> if (showHeadlines) NewsFragment() else NewsEverythingFragment()
+                else -> NewsFragment()
             }
             openFragment(selectedFragment)
             true

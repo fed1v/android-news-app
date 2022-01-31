@@ -17,16 +17,13 @@ import com.google.firebase.database.ValueEventListener
 
 class ChangePasswordDialogFragment : DialogFragment() {
     private lateinit var v: View
-
     private lateinit var btn_ok: Button
     private lateinit var btn_cancel: Button
-
     private lateinit var et_old_password: EditText
     private lateinit var et_new_password: EditText
     private lateinit var et_confirm_password: EditText
 
     private lateinit var databaseHelper: DatabaseHelper
-
     private var password: String? = null
 
     override fun onCreateView(
@@ -35,18 +32,15 @@ class ChangePasswordDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.dialog_fragment_change_password, container, false)
-
         databaseHelper = DatabaseHelper(requireContext())
         getPasswordFromDatabase()
         initView()
-
         return v
     }
 
     private fun initView() {
         btn_ok = v.findViewById(R.id.btn_ok)
         btn_cancel = v.findViewById(R.id.btn_cancel)
-
         et_old_password = v.findViewById(R.id.et_old_password)
         et_new_password = v.findViewById(R.id.et_new_password)
         et_confirm_password = v.findViewById(R.id.et_confirm_password)
@@ -55,7 +49,6 @@ class ChangePasswordDialogFragment : DialogFragment() {
             val old_password = et_old_password.text.toString()
             val new_password = et_new_password.text.toString()
             val confirm_password = et_confirm_password.text.toString()
-
             val oldPasswordHash = EncryptionHelper.getSHA256(old_password)
 
             if (!password.isNullOrBlank() && (password == oldPasswordHash)) {
@@ -77,7 +70,6 @@ class ChangePasswordDialogFragment : DialogFragment() {
                 Toast.makeText(requireContext(), "Old password is wrong", Toast.LENGTH_SHORT).show()
             }
         }
-
         btn_cancel.setOnClickListener {
             dismiss()
         }

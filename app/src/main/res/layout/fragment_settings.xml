@@ -46,8 +46,8 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_margin="6dp"
-        android:drawableLeft="@drawable/ic_country"
-
+        android:drawableLeft="@drawable/ic_flag"
+        android:drawableTint="#00B0FF"
         android:text="Default country"
         android:textAlignment="textStart"
         android:textColor="@color/black" />
@@ -58,8 +58,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
-        android:drawableLeft="@drawable/ic_category"
-
+        android:drawableLeft="@drawable/ic_categories"
+        android:drawableTint="#00B0FF"
         android:text="Default category"
         android:textAlignment="textStart"
         android:textColor="@color/black" />
@@ -70,30 +70,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
-        android:drawableLeft="@drawable/ic_clock"
-
+        android:drawableLeft="@drawable/ic_time"
+        android:drawableTint="#00B0FF"
         android:text="Select notifications time"
         android:textAlignment="textStart"
         android:textColor="@color/black" />
 
     <Button
-        android:id="@+id/btn_set_alarm"
+        android:id="@+id/btn_enable_notifications"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
-        android:text="Set alarm"
+        android:text="Enable notifications"
 
         android:textAlignment="textStart"
         android:textColor="@color/black" />
 
     <Button
-        android:id="@+id/btn_cancel_alarm"
+        android:id="@+id/btn_disable_notifications"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
-        android:text="Cancel alarm"
+        android:text="Disable notifications"
 
         android:textAlignment="textStart"
         android:textColor="@color/black" />
@@ -103,9 +103,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
+        android:paddingLeft="15dp"
 
         android:drawableLeft="@drawable/ic_lock"
-        android:drawableTint="#0000FF"
+        android:drawableTint="#00B0FF"
         android:text="Notes security"
         android:textSize="17sp" />
 
@@ -127,7 +128,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
         android:drawableLeft="@drawable/ic_logout"
-
+        android:drawableTint="#FF1744"
         android:text="Logout"
         android:textAlignment="textStart"
         android:textColor="@color/black" />

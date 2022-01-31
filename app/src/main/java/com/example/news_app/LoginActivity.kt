@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageButton
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.AccessToken
@@ -32,8 +32,8 @@ class LoginActivity : AppCompatActivity() {
         const val RC_SIGN_IN: Int = 123
     }
 
-    private lateinit var buttonGoogle: ImageButton
-    private lateinit var buttonVK: ImageButton
+    private lateinit var buttonGoogle: Button
+    private lateinit var buttonVK: Button
     private lateinit var login_button_facebook: LoginButton
 
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -55,7 +55,6 @@ class LoginActivity : AppCompatActivity() {
 
         if (!InternetConnection.isConnected()) {
             Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
-            return
         }
 
         auth = FirebaseAuth.getInstance()

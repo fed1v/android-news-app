@@ -40,7 +40,6 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
 
         if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-            return v
         }
 
         timeStart = System.currentTimeMillis()
@@ -54,13 +53,15 @@ class OpenNewsFragment(var headlines: NewsHeadlines) : Fragment() {
         }
 
         urlHashCode = EncryptionHelper.getSHA1(headlines.url)
+        getTime()
+        return v
+    }
 
+    private fun getTime() {
         databaseHelper.userStatsReference.child(current_category).child(urlHashCode).child("time")
             .get().addOnCompleteListener {
                 timeInDatabase = it.result.getValue(Long::class.java)
             }
-
-        return v
     }
 
     private fun initView() {

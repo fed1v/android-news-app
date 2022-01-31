@@ -14,7 +14,6 @@ import com.example.news_app.R
 
 class SetPasswordDialogFragment : DialogFragment() {
     private lateinit var v: View
-
     private lateinit var btn_ok: Button
     private lateinit var btn_cancel: Button
     private lateinit var et_password: EditText
@@ -28,10 +27,8 @@ class SetPasswordDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.dialog_fragment_set_password, container, false)
-
         databaseHelper = DatabaseHelper(requireContext())
         initView()
-
         return v
     }
 
@@ -56,7 +53,6 @@ class SetPasswordDialogFragment : DialogFragment() {
             }
             dismiss()
         }
-
         btn_cancel.setOnClickListener {
             dismiss()
         }

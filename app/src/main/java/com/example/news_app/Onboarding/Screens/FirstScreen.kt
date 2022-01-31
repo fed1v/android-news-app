@@ -18,7 +18,6 @@ class FirstScreen : Fragment() {
     private lateinit var v: View
     private lateinit var next: TextView
     private lateinit var viewPager: ViewPager2
-
     private lateinit var btn_country: Button
 
     private lateinit var databaseHelper: DatabaseHelper
@@ -31,23 +30,19 @@ class FirstScreen : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.fragment_first_screen, container, false)
-
         databaseHelper = DatabaseHelper(requireContext())
         initView()
-
         return v
     }
 
     private fun initView() {
         next = v.findViewById(R.id.next)
         btn_country = v.findViewById(R.id.btn_country)
-
         viewPager = requireActivity().findViewById(R.id.viewPager)
 
         next.setOnClickListener {
             viewPager.currentItem = 1
         }
-
         btn_country.setOnClickListener {
             openCountrySettings()
         }

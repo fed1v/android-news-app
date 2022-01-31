@@ -23,70 +23,58 @@ import com.example.news_app.Models.SourcesApiResponse
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class NewsEverythingFragment : Fragment(), SelectListener {
-
+    private lateinit var v: View
+    private lateinit var toolbar: Toolbar
+    private lateinit var spinner: Spinner
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: NewsAdapter
+    private lateinit var btn_options: ImageButton
+    private lateinit var searchView: SearchView
 
     private val options: Array<String> = arrayOf("Language", "Sources")
 
     private val countriesMap = NewsOptionsHelper.countries
-    private val languagesMap = NewsOptionsHelper.languages
 
+    private val languagesMap = NewsOptionsHelper.languages
     private var current_language_pair: Pair<String, String?> = ("English" to "en")
     private var language_num: Int = 1
 
-    private var sources_list: MutableList<Source> = mutableListOf<Source>()
+    private var sources_list: MutableList<Source> = mutableListOf()
     private lateinit var sourcesMap: MutableMap<String, String?>
     private var current_checked_sources: BooleanArray = booleanArrayOf()
     private var string_sources: String? = null
 
-    private lateinit var btn_options: ImageButton
-    private lateinit var searchView: SearchView
-
-    private lateinit var v: View
-
     private lateinit var databaseHelper: DatabaseHelper
-
-    private lateinit var toolbar: Toolbar
-    private lateinit var spinner: Spinner
-
     private var userPreferences: SharedPreferences? = null
 
     private var default_category: String? = null
     private var default_language: String? = null
     private var default_country: String? = null
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        v =
-            LayoutInflater.from(context)
-                .inflate(R.layout.fragment_news_everything, container, false)
+        v = LayoutInflater.from(context)
+            .inflate(R.layout.fragment_news_everything, container, false)
 
-        if(!InternetConnection.isConnected()){
+        if (!InternetConnection.isConnected()) {
             Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-            return v
         }
 
         initView()
-
         databaseHelper = DatabaseHelper(requireContext())
         getUserSettings()
-
         getSources(
             category = default_category,
             language = default_language,
             country = default_country
         )
-
         showNewsEverything(
             query = null,
             sources = string_sources,
             language = current_language_pair.second
         )
-
         return v
     }
 
@@ -106,7 +94,6 @@ class NewsEverythingFragment : Fragment(), SelectListener {
 
     private fun getUserSettings() {
         userPreferences = context?.getSharedPreferences("User settings", Context.MODE_PRIVATE)
-
         val user_language = userPreferences?.getString("User language", null)
         if (user_language == null) {
             default_language = null
@@ -261,7 +248,6 @@ class NewsEverythingFragment : Fragment(), SelectListener {
         )
     }
 
-
     fun openSourceSettings() {
         sourcesMap = mutableMapOf()
         sources_list.forEach { sourcesMap += Pair(it.name, it.id) }
@@ -280,7 +266,6 @@ class NewsEverythingFragment : Fragment(), SelectListener {
             .setPositiveButton("Ok") { dialog, which ->
                 current_checked_sources = temp_checked_sources.copyOf()
                 changeSources()
-
                 showNewsEverything(
                     query = null,
                     sources = string_sources,
@@ -343,7 +328,6 @@ class NewsEverythingFragment : Fragment(), SelectListener {
                 if (context != null) {
                     Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
                 }
-
             }
         }
 

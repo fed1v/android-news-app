@@ -20,21 +20,17 @@ class ViewPagerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         v = inflater.inflate(R.layout.fragment_view_pager, container, false)
-
         val fragmentList = listOf<Fragment>(
             FirstScreen(),
             SecondScreen(),
             ThirdScreen()
         )
-
         val adapter = ViewPagerAdapter(
             fragmentList,
             requireActivity().supportFragmentManager,
             lifecycle
         )
-
         v.viewPager.adapter = adapter
-
         return v
     }
 }
