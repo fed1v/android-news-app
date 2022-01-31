@@ -123,12 +123,8 @@ class OpenBookmarksNewsFragment(var headlines: NewsHeadlines) : Fragment() {
     }
 
     override fun onDestroy() {
-        if (!InternetConnection.isConnected()) {
-            Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
-        } else {
-            timeEnd = System.currentTimeMillis()
-            addNewsToStats()
-        }
+        timeEnd = System.currentTimeMillis()
+        addNewsToStats()
         super.onDestroy()
     }
 
