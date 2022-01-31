@@ -138,7 +138,7 @@ class LoginActivity : AppCompatActivity() {
             val callback = object : VKAuthCallback {
                 override fun onLogin(token: VKAccessToken) {
                     val email = token.email!!
-                    val password = "vk-" + token.userId     // TODO ??
+                    val password = "vk-" + token.userId
                     auth.fetchSignInMethodsForEmail(email)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {

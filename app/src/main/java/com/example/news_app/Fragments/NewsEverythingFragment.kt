@@ -174,7 +174,7 @@ class NewsEverythingFragment : Fragment(), SelectListener {
                 }
                 .setPositiveButton("Ok", null)
                 .setNegativeButton("Cancel", null)
-                .show() //TODO
+                .show()
         }
     }
 
@@ -308,7 +308,6 @@ class NewsEverythingFragment : Fragment(), SelectListener {
         parentFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, OpenNewsFragment(headlines))
-            //        .addToBackStack(null)  // TODO
             .commit()
     }
 

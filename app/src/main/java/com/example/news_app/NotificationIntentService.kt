@@ -96,7 +96,7 @@ class NotificationIntentService : IntentService(NotificationIntentService::class
                         .setStyle(
                             NotificationCompat
                                 .BigPictureStyle()
-                                .bigPicture(bitmap)  // TODO null when app closed
+                                .bigPicture(bitmap)
                                 .bigLargeIcon(null)
                         )
                 }

@@ -45,7 +45,7 @@ class NewsAdapter(
                 .onlyScaleDown()
                 .into(holder.img_headline)
         } else{
-            holder.img_headline.setImageResource(R.drawable.not_available)  // TODO
+            holder.img_headline.setImageResource(R.drawable.not_available)
         }
 
         holder.cardView.setOnClickListener{

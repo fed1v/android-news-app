@@ -385,7 +385,6 @@ class NewsFragment : Fragment(), SelectListener, View.OnClickListener {
         parentFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, OpenNewsFragment(headlines))
-            //        .addToBackStack(null)  // TODO
             .commit()
     }
 
